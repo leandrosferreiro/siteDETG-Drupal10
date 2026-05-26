@@ -1,0 +1,22 @@
+{# @file node.html.twig — Tema DETG/UFBA #}
+{% set classes = ['node','node--type-' ~ node.bundle|clean_class, view_mode ? 'node--view-mode-' ~ view_mode|clean_class, not page ? 'node--teaser'] %}
+<article{{ attributes.addClass(classes) }}>
+  {% if not page %}
+    <header>
+      {{ title_prefix }}
+      <h2{{ title_attributes.addClass('noticia-title') }}><a href="{{ url }}" rel="bookmark">{{ label }}</a></h2>
+      {{ title_suffix }}
+    </header>
+  {% endif %}
+  {% if display_submitted %}
+    <div style="display:flex;align-items:center;gap:.75rem;font-size:.75rem;color:var(--slate5);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray200);">
+      {{ author_picture }}
+      <span>{{ 'Por'|t }} <strong>{{ author_name }}</strong></span>
+      <time datetime="{{ node.createdtime|date('c') }}" style="margin-left:auto;">{{ date }}</time>
+    </div>
+  {% endif %}
+  {% if content.field_image is defined %}<div style="margin-bottom:1.25rem;">{{ content.field_image }}</div>{% endif %}
+  <div{{ content_attributes.addClass('node__content') }}>{{ content|without('field_image','field_tags','links') }}</div>
+  {% if content.field_tags is defined %}<div style="margin-top:1rem;">{{ content.field_tags }}</div>{% endif %}
+  {% if content.links is defined %}<footer style="margin-top:1.25rem;padding-top:.75rem;border-top:1px solid var(--gray200);">{{ content.links }}</footer>{% endif %}
+</article>

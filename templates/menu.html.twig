@@ -1,0 +1,17 @@
+{# @file menu.html.twig — Tema DETG/UFBA #}
+{% import _self as menus %}
+{% macro menu_links(items, menu_level) %}
+  {% import _self as menus %}
+  {% if items %}
+    <ul class="{{ menu_level == 0 ? 'nav-list' : '' }}" role="{{ menu_level == 0 ? 'list' : 'menu' }}">
+    {% for item in items %}
+      {% set li_classes = ['menu-item', item.is_expanded ? 'menu-item--expanded', item.in_active_trail ? 'active-trail'] %}
+      <li{{ item.attributes.addClass(li_classes) }} role="none">
+        {{ link(item.title, item.url, {'class': ['nav-item', item.in_active_trail ? 'is-active'], 'role': 'menuitem'}) }}
+        {% if item.below %}{{ menus.menu_links(item.below, menu_level + 1) }}{% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+{{ menus.menu_links(items, 0) }}

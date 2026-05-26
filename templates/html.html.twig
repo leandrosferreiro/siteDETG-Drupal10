@@ -1,0 +1,31 @@
+{#
+/**
+ * @file html.html.twig
+ * Documento HTML raiz — Tema DETG/UFBA Drupal 10.4
+ */
+#}
+<!DOCTYPE html>
+<html{{ html_attributes.setAttribute('lang','pt-BR').addClass('scroll-smooth') }}>
+<head>
+  <head-placeholder token="{{ placeholder_token }}">
+  <title>{{ head_title|safe_join(' | ') }}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ 'Departamento de Engenharia de Transportes e Geodésia — Escola Politécnica da UFBA'|t }}">
+  <meta name="theme-color" content="#1e3a8a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <css-placeholder token="{{ placeholder_token }}">
+  <js-placeholder token="{{ placeholder_token }}">
+</head>
+<body{{ attributes.addClass('antialiased') }}>
+  <a href="#main-content" class="visually-hidden focusable skip-link">
+    {{ 'Pular para o conteúdo principal'|t }}
+  </a>
+  {{ page_top }}
+  {{ page }}
+  {{ page_bottom }}
+  <js-bottom-placeholder token="{{ placeholder_token }}">
+</body>
+</html>

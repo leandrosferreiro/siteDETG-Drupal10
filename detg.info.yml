@@ -1,0 +1,23 @@
+name: DETG
+type: theme
+description: 'Tema institucional do DETG — Escola Politécnica da UFBA. Fiel ao layout home.html: Inter, azul/laranja-terra, sem logo, barra gov.br, avisos, agenda Google.'
+package: DETG/UFBA
+core_version_requirement: ^10.4
+base theme: false
+
+libraries:
+  - detg/global
+
+regions:
+  barra_governo:   'Barra do Governo Federal'
+  header:          'Cabeçalho (Título)'
+  primary_menu:    'Menu Principal'
+  sidebar_first:   'Lateral Esquerda (Sistemas / Secretaria)'
+  content:         'Conteúdo Principal'
+  sidebar_second:  'Lateral Direita (Agenda / Avisos)'
+  footer:          'Rodapé'
+  page_top:        'Topo técnico (Drupal)'
+  page_bottom:     'Base técnica (Drupal)'
+
+features:
+  - favicon

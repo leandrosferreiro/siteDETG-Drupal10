@@ -1,0 +1,19 @@
+detg.mobile:
+  label: Mobile
+  mediaQuery: ''
+  weight: 0
+  multipliers:
+    - 1x
+detg.tablet:
+  label: Tablet
+  mediaQuery: 'all and (min-width: 640px)'
+  weight: 1
+  multipliers:
+    - 1x
+detg.desktop:
+  label: Desktop
+  mediaQuery: 'all and (min-width: 1024px)'
+  weight: 2
+  multipliers:
+    - 1x
+    - 2x
