@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETG | UFBA - Departamento de Engenharia de Transportes e Geodésia</title>
+    <!-- 1. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        
+        /* Gradiente de Texto Azul */
+        .gradient-text {
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Cor Laranja Terra Escuro */
+        .earth-text {
+            color: #9a3412; 
+        }
+
+        /* Gradiente para o "e" */
+        .connector-text {
+            background: linear-gradient(90deg, #2563eb, #9a3412);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        /* Hero Header */
+        #main-header {
+            position: relative;
+            background-color: white;
+            /* Gradiente sutil de fundo para substituir o 3D */
+            background: radial-gradient(circle at center, #f8fafc 0%, #ffffff 100%);
+            border-bottom: 1px solid #e5e7eb;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Títulos de seção estilizados */
+        .section-title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 1.875rem; 
+            line-height: 2.25rem;
+            font-weight: 900; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #1e293b; 
+            text-align: center;
+        }
+        
+        .section-line {
+            height: 4px;
+            width: 80px;
+            background: linear-gradient(90deg, #1e3a8a, #2563eb); 
+            margin-top: 0.5rem;
+            border-radius: 9999px;
+        }
+
+        /* Menu Horizontal */
+        #main-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: #1e3a8a;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            position: relative;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            transition: background-color 0.2s;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            width: 100%; /* Largura total no mobile */
+            justify-content: center; /* Texto centralizado no mobile */
+        }
+        
+        /* Desktop: largura automática */
+        @media (min-width: 1024px) {
+            .nav-item {
+                width: auto;
+            }
+        }
+
+        .nav-item:hover {
+            background-color: #2563eb;
+        }
+
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 0.75rem;
+        }
+
+        #barra-brasil {
+             width: 100%;
+             z-index: 9999;
+        }
+        
+        .container-wide {
+            width: 100%;
+            max-width: 96%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body class="antialiased bg-gray-50 flex flex-col min-h-screen">
+
+    <!-- Barra do Governo Federal -->
+    <div id="barra-brasil" style="background:#7f7f7f; height: 20px; padding:0 0 0 10px;display:block;"></div>
+    <script src="https://barra.brasil.gov.br/barra_2.0.js" type="text/javascript"></script>
+
+    <!-- ======================= -->
+    <!-- TOPO: HERO (Sem 3D) -->
+    <!-- ======================= -->
+    <header id="main-header">
+        <div class="relative z-10 container-wide px-4 flex flex-col md:flex-row items-center justify-center md:justify-end gap-4 py-6">
+            <div class="text-center md:text-right max-w-4xl pointer-events-auto flex flex-col items-center md:items-end">
+                <h1 class="text-2xl md:text-4xl font-black text-slate-900 leading-tight">
+                    Departamento de Engenharia de<br>
+                    <span class="gradient-text">Transportes</span> <span class="connector-text mx-1">e</span> <span class="earth-text">Geodésia</span>
+                </h1>
+                <p class="text-slate-600 mt-2 text-base md:text-lg font-medium">
+                    Universidade Federal da Bahia - Escola Politécnica
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- ======================= -->
+    <!-- MENU PRINCIPAL (RESPONSIVO / TOGGLE) -->
+    <!-- ======================= -->
+    <nav id="main-nav">
+        <div class="container-wide px-4 py-1">
+            
+            <!-- Header Mobile do Menu (Botão Hambúrguer) -->
+            <div class="flex items-center justify-between lg:hidden py-2">
+                <span class="text-white font-bold tracking-wider text-sm flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    MENU
+                </span>
+                <button id="mobile-menu-btn" class="text-white p-2 hover:bg-blue-700 rounded focus:outline-none focus:ring-2 focus:ring-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Conteúdo do Menu (Links + Busca) -->
+            <div id="mobile-menu-content" class="hidden lg:flex flex-col lg:flex-row items-center justify-center relative pb-4 lg:pb-0"> 
+                
+                <!-- Links do Menu -->
+                <ul class="flex flex-col lg:flex-row items-center justify-center w-full lg:w-auto text-sm md:text-base uppercase gap-y-1 lg:gap-y-0">
+                    <li class="w-full lg:w-auto">
+                        <a href="#home" class="nav-item" title="Início">
+                            <svg class="w-6 h-6 text-white hover:text-blue-200 transition-transform hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 21l4-9 4 9" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 12h4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.5 12V7.5a1.5 1.5 0 013 0V12" />
+                                <circle cx="12" cy="7.5" r="2.2" stroke-width="1.5" fill="rgba(255,255,255,0.1)" />
+                                <circle cx="12" cy="7.5" r="0.5" fill="currentColor" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 4h4" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="w-full lg:w-auto"><a href="#institucional" class="nav-item">Institucional</a></li>
+                    <li class="w-full lg:w-auto"><a href="#docentes" class="nav-item">Docentes</a></li>
+                    <li class="w-full lg:w-auto"><a href="#producao" class="nav-item">Produção</a></li>
+                    <li class="w-full lg:w-auto"><a href="#laboratorios" class="nav-item">Laboratórios</a></li>
+                    <li class="w-full lg:w-auto"><a href="#noticias" class="nav-item">Notícias</a></li>
+                </ul>
+
+                <!-- Barra de Busca -->
+                <div class="relative w-full lg:w-64 flex-shrink-0 lg:absolute lg:right-4 mt-3 lg:mt-0 mb-2 lg:mb-0 px-4 lg:px-0">
+                    <div class="relative flex items-center w-full h-8 rounded-full bg-blue-800/50 border border-blue-400/30 overflow-hidden focus-within:ring-2 focus-within:ring-white/50 transition-all">
+                        <div class="grid place-items-center h-full w-8 text-blue-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                        class="peer h-full w-full outline-none text-xs text-white pr-2 bg-transparent placeholder-blue-200/70"
+                        type="text"
+                        id="search_menu"
+                        placeholder="BUSCAR..." />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======================= -->
+    <!-- CONTEÚDO PRINCIPAL (Grid 3 Colunas) -->
+    <!-- ======================= -->
+    <div class="flex-grow container-wide px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- COLUNA 1: LATERAL ESQUERDA (Sistemas e Secretaria) -->
+        <aside class="col-span-1 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6 order-2 lg:order-1 lg:sticky lg:top-20 h-fit">
+            
+            <!-- Widget Sistemas -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 h-full">
+                <h3 class="font-bold text-slate-800 text-sm mb-3 pb-2 border-b border-gray-100 uppercase flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    Sistemas
+                </h3>
+                <div class="space-y-2">
+                    <a href="#" class="block text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors">
+                        <span class="font-bold block text-blue-700">SIGAA</span>
+                        <span class="text-[10px] text-gray-400">Sistema Acadêmico</span>
+                    </a>
+                    <a href="#" class="block text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors">
+                        <span class="font-bold block text-blue-700">Moodle</span>
+                        <span class="text-[10px] text-gray-400">Ambiente Virtual</span>
+                    </a>
+                    <a href="#" class="block text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors border-t border-gray-50 mt-1 pt-2">
+                        Reserva de Equipamentos
+                    </a>
+                    <a href="#" class="block text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors">
+                        Reserva de Laboratórios
+                    </a>
+                </div>
+            </div>
+
+            <!-- Widget Secretaria -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 h-full">
+                <h3 class="font-bold text-slate-800 text-sm mb-3 pb-2 border-b border-gray-100 uppercase flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Secretaria
+                </h3>
+                <ul class="space-y-1">
+                    <li><a href="#" class="flex items-center gap-2 text-xs text-gray-600 hover:text-blue-600 hover:bg-gray-50 px-2 py-2 rounded transition-colors"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Documentos</a></li>
+                    <li><a href="#" class="flex items-center gap-2 text-xs text-gray-600 hover:text-blue-600 hover:bg-gray-50 px-2 py-2 rounded transition-colors"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Legislação</a></li>
+                    <li><a href="#" class="flex items-center gap-2 text-xs text-gray-600 hover:text-blue-600 hover:bg-gray-50 px-2 py-2 rounded transition-colors"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Formulários</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- COLUNA 2: CONTEÚDO (7 COLUNAS) -->
+        <main class="col-span-1 lg:col-span-7 space-y-12 order-1 lg:order-2">
+            
+            <!-- Seção Institucional -->
+            <section id="institucional" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="section-title-container">
+                    <h2 class="section-title">Sobre o DETG</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="prose text-slate-600 max-w-none leading-relaxed text-justify">
+                    <p class="mb-4">
+                        O <strong>Departamento de Engenharia de Transportes e Geodésia - DETG</strong>, foi criado por iniciativa do Prof. Vasco de Azevedo Neto na década de 1960. Está localizado no 6° andar da Escola Politécnica, tendo nas suas instalações o LABGEO - Laboratório de Geomensura Theodoro Sampaio, o CETRAMA - Centro de Estudos de Transporte e Maio Ambiente, voltado à pesquisa, e um acervo de equipamentos utilizados para levantamentos topográficos. Atualmente oferta disciplinas para os cursos de Graduação em Engenharia e Tecnologia em Transportes Terrestre. Este departamento, originalmente denominado de Departamento 045 e depois Departamento de Transportes - DT, desempenhoi um papel de suma importância, noptadamente, no que tange ao ensino, pesquisa e extensão na área de infraestrutura e planejmaneto de transportes nesta Universidade.
+                    </p>                    
+                </div>
+            </section>
+
+            <!-- Seção Docentes -->
+            <section id="docentes">
+                <div class="section-title-container">
+                    <h2 class="section-title">Corpo Docente</h2>
+                    <div class="section-line"></div>
+                    <a href="#" class="text-sm text-blue-600 font-medium hover:underline uppercase tracking-wide text-xs mt-3">Ver todos os docentes</a>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer group">
+                        <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">AB</div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600 transition-colors">Artur Caldas Brandão</h4>
+                            <p class="text-xs text-slate-500">Chefe do DETG</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer group">
+                        <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">JD</div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600 transition-colors">Juan Pedro Moreno Delgado</h4>
+                            <p class="text-xs text-slate-500">Vice-Chefe do DETG</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer group">
+                        <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">EF</div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 group-hover:text-blue-600 transition-colors">Élio Santana Fontes</h4>
+                            <p class="text-xs text-slate-500">Decano do DETG</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Laboratórios -->
+            <section id="laboratorios">
+                <div class="section-title-container">
+                    <h2 class="section-title">Laboratórios</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4"> 
+                    <!-- LABGEO -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">LABGEO</h3>
+                        <p class="text-xs text-slate-500 mt-1">Laboratório de Geomensura Theodoro Sampaio</p>
+                    </div>
+
+                    <!-- LTGEO -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">LTGEO</h3>
+                        <p class="text-xs text-slate-500 mt-1">Laboratório de Topografia e Geodésia</p>
+                    </div>
+
+                    <!-- LABTRANS -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">LABTRANS</h3>
+                        <p class="text-xs text-slate-500 mt-1">Laboratório de Simulação em Transporte e Trânsito</p>
+                    </div>
+
+                    <!-- CARTOLAB -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">CARTOLAB</h3>
+                        <p class="text-xs text-slate-500 mt-1">Laboratório de Cartografia e Sistemas de Informações Geográficas</p>
+                    </div>
+
+                    <!-- LABFSR -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">LABFSR</h3>
+                        <p class="text-xs text-slate-500 mt-1">Laboratório de Fotogrametria e Sensoriamento Remoto</p>
+                    </div>
+
+                    <!-- LABGEOCADASTRO -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">LABGEOCADASTRO</h3>
+                        <p class="text-xs text-slate-500 mt-1"> Laboratório de Georreferenciamento e Cadastro Territorial</p>
+                    </div>
+
+                    <!-- CETRAMA -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">CETRAMA</h3>
+                        <p class="text-xs text-slate-500 mt-1">Centro de Estudos de Transporte e Meio Ambiente</p>
+                    </div>
+
+                    <!-- LITS -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">LITS</h3>
+                        <p class="text-xs text-slate-500 mt-1">Laboratório de Infraestrutura de Transportes Sustentáveis</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- COLUNA 3: CALENDÁRIO (Direita) - 3 Colunas -->
+        <aside class="lg:block lg:col-span-3 space-y-6 order-3">
+            <!-- Widget Calendário -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 uppercase text-sm border-b border-gray-100 pb-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Agenda do DETG
+                </h3>
+                <div class="overflow-hidden rounded-lg bg-gray-100 border border-gray-200">
+                   <iframe src="https://calendar.google.com/calendar/embed?height=400&wkst=1&bgcolor=%23ffffff&ctz=America%2FBahia&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=MONTH&src=cHQtYnIuYnJYX2hvbGlkYXkjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%230B8043" style="border-width:0" width="100%" height="400" frameborder="0" scrolling="no"></iframe>
+                </div>
+            </div>
+
+            <!-- Widget Avisos -->
+            <div class="bg-yellow-50 rounded-xl border border-yellow-100 p-5">
+                <h4 class="font-bold text-yellow-800 text-sm mb-3 uppercase flex items-center gap-2">
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                    Avisos Importantes
+                </h4>
+                <ul class="space-y-3">
+                    <li class="text-xs text-yellow-800 pb-3 border-b border-yellow-100/50">
+                        <span class="font-bold block mb-1">Novo período de Rematrícula</span>
+                        De 23/03 a 26/03/2026: Rematrícula.
+                    </li>
+                    <li class="text-xs text-yellow-800">
+                        <span class="font-bold block mb-1">2º ajuste de turmas do semestre 2026.1</span>
+                        De 27/03 a 30/03/2026: 2º Ajuste de Turmas.
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Seção Notícias Expandida (NOVO CONTAINER FORA DO GRID) -->
+    <div class="container-wide px-4 pb-12">
+        <div class="relative flex flex-col md:flex-row items-center justify-center mb-10">
+            <!-- Título Centralizado -->
+            <div class="flex flex-col items-center">
+                <h2 class="section-title">Últimas Notícias</h2>
+                <div class="section-line mb-4"></div>
+            </div>
+            
+            <!-- Link Posicionado à Direita -->
+            <a href="#" class="mt-4 md:mt-0 md:absolute md:right-0 text-sm text-blue-600 font-bold hover:text-blue-800 hover:underline uppercase tracking-wide text-xs flex items-center transition-colors">
+                Ver todas as notícias 
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Notícia 1 -->
+            <article class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+                <div class="relative h-40 bg-slate-100 overflow-hidden">
+                    <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-md shadow-sm border border-gray-100 text-center z-10">
+                        <span class="block text-xs font-bold text-slate-400 uppercase">NOV</span>
+                        <span class="block text-lg font-black text-blue-600 leading-none">27</span>
+                    </div>
+                     <div class="w-full h-full flex items-center justify-center text-slate-300"><svg class="w-12 h-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg></div>
+                </div>
+                <div class="p-5 flex-grow flex flex-col">
+                    <span class="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wide">Graduação</span>
+                    <h3 class="font-bold text-sm text-slate-800 mb-2 leading-tight group-hover:text-blue-700 transition-colors">Edital aberto para Monitoria 2026.1</h3>
+                    <a href="#" class="mt-auto inline-flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide group-hover:text-blue-600 transition-colors">Ler Mais &rarr;</a>
+                </div>
+            </article>
+            
+            <!-- Notícia 2 -->
+            <article class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+                <div class="relative h-40 bg-slate-100 overflow-hidden">
+                    <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-md shadow-sm border border-gray-100 text-center z-10">
+                        <span class="block text-xs font-bold text-slate-400 uppercase">NOV</span>
+                        <span class="block text-lg font-black text-indigo-600 leading-none">20</span>
+                    </div>
+                     <div class="w-full h-full flex items-center justify-center text-slate-300"><svg class="w-12 h-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg></div>
+                </div>
+                <div class="p-5 flex-grow flex flex-col">
+                    <span class="text-xs font-bold text-indigo-600 mb-2 uppercase tracking-wide">Eventos</span>
+                    <h3 class="font-bold text-sm text-slate-800 mb-2 leading-tight group-hover:text-indigo-700 transition-colors">Seminário</h3>
+                    <a href="#" class="mt-auto inline-flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide group-hover:text-indigo-600 transition-colors">Ler Mais &rarr;</a>
+                </div>
+            </article>
+
+            <!-- Notícia 3 (NOVA) -->
+            <article class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+                <div class="relative h-40 bg-slate-100 overflow-hidden">
+                    <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-md shadow-sm border border-gray-100 text-center z-10">
+                        <span class="block text-xs font-bold text-slate-400 uppercase">NOV</span>
+                        <span class="block text-lg font-black text-green-600 leading-none">15</span>
+                    </div>
+                     <div class="w-full h-full flex items-center justify-center text-slate-300"><svg class="w-12 h-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>
+                </div>
+                <div class="p-5 flex-grow flex flex-col">
+                    <span class="text-xs font-bold text-green-600 mb-2 uppercase tracking-wide">Extensão</span>
+                    <h3 class="font-bold text-sm text-slate-800 mb-2 leading-tight group-hover:text-green-700 transition-colors">Inscrições para Projeto</h3>
+                    <a href="#" class="mt-auto inline-flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide group-hover:text-green-600 transition-colors">Ler Mais &rarr;</a>
+                </div>
+            </article>
+
+            <!-- Notícia 4 (NOVA) -->
+            <article class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+                <div class="relative h-40 bg-slate-100 overflow-hidden">
+                    <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-md shadow-sm border border-gray-100 text-center z-10">
+                        <span class="block text-xs font-bold text-slate-400 uppercase">NOV</span>
+                        <span class="block text-lg font-black text-orange-600 leading-none">10</span>
+                    </div>
+                     <div class="w-full h-full flex items-center justify-center text-slate-300"><svg class="w-12 h-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg></div>
+                </div>
+                <div class="p-5 flex-grow flex flex-col">
+                    <span class="text-xs font-bold text-orange-600 mb-2 uppercase tracking-wide">Pesquisa</span>
+                    <h3 class="font-bold text-sm text-slate-800 mb-2 leading-tight group-hover:text-orange-700 transition-colors">Defesa de Tese</h3>
+                    <a href="#" class="mt-auto inline-flex items-center text-xs font-bold text-slate-700 uppercase tracking-wide group-hover:text-orange-600 transition-colors">Ler Mais &rarr;</a>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+    <!-- Footer Melhorado (4 Colunas) -->
+    <footer class="bg-slate-900 text-slate-300 py-12 mt-auto border-t border-slate-800">
+        <div class="container-wide px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
+            <!-- Col 1: Sobre -->
+            <div>
+                <h4 class="text-white font-bold uppercase mb-4 tracking-wider">DETG / UFBA</h4>
+                <p class="mb-4 text-slate-400">Departamento de Engenharia de Transportes e Geodésia da Escola Politécnica da UFBA.</p>
+                <div class="flex gap-4">
+                    <!-- Ícones Sociais (Placeholders) -->
+                    <a href="#" class="text-slate-400 hover:text-white"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
+                    <a href="#" class="text-slate-400 hover:text-white"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+                </div>
+            </div>
+
+            <!-- Col 2: Acesso Rápido -->
+            <div>
+                <h4 class="text-white font-bold uppercase mb-4 tracking-wider">Acesso Rápido</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-blue-400 transition-colors">Portal UFBA</a></li>
+                    <li><a href="#" class="hover:text-blue-400 transition-colors">Escola Politécnica</a></li>
+                    <li><a href="#" class="hover:text-blue-400 transition-colors">Processos Seletivos</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 3: Contato -->
+            <div>
+                <h4 class="text-white font-bold uppercase mb-4 tracking-wider">Contato</h4>
+                <ul class="space-y-2">
+                    <li class="flex items-start gap-2">
+                        <svg class="w-4 h-4 mt-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span>detg@ufba.br</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <svg class="w-4 h-4 mt-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        <span>(71) 3283-9821</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Col 4: Endereço -->
+            <div>
+                <h4 class="text-white font-bold uppercase mb-4 tracking-wider">Endereço</h4>
+                <p class="text-slate-400">
+                    Rua Prof. Aristides Novis, 2<br>
+                    Federação<br>
+                    Salvador - BA<br>
+                    CEP: 40210-630
+                </p>
+            </div>
+        </div>
+        <div class="border-t border-slate-800 mt-8 pt-8 text-center">
+            <p class="text-xs opacity-50">&copy; 2026 DETG.</p>
+        </div>
+    </footer>
+</body>
+</html>
+
