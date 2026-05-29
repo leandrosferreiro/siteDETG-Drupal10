@@ -11,6 +11,7 @@
   <title>{{ head_title|safe_join(' | ') }}</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
   <meta name="description" content="{{ 'Departamento de Engenharia de Transportes e Geodésia — Escola Politécnica da UFBA'|t }}">
   <meta name="theme-color" content="#1e3a8a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +20,7 @@
   <css-placeholder token="{{ placeholder_token }}">
   <js-placeholder token="{{ placeholder_token }}">
 </head>
-<body{{ attributes.addClass('antialiased') }}>
+<body{{ attributes.addClass('antialiased bg-gray-50 flex flex-col min-h-screen') }}>
   <a href="#main-content" class="visually-hidden focusable skip-link">
     {{ 'Pular para o conteúdo principal'|t }}
   </a>
