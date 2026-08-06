@@ -130,6 +130,16 @@ Módulo **DETG Lab Equipamentos** (`web/modules/custom/detg_lab_equip` no site D
 
 ---
 
+## Licença
+
+Este projeto é distribuído sob a **[GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html)** (AGPL-3.0).
+
+O texto completo da licença está no arquivo [`LICENSE`](LICENSE).
+
+Em resumo: você pode usar, estudar, modificar e redistribuir o código, desde que as versões modificadas (inclusive quando oferecidas como serviço em rede) permaneçam sob a mesma licença e o código-fonte correspondente fique disponível.
+
+---
+
 ## Créditos
 
 Desenvolvido para o DETG/UFBA. Design baseado no protótipo HTML fornecido pelo departamento.  
