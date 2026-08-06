@@ -1,0 +1,15 @@
+{#
+/**
+ * @file
+ * Bloco "Sobre o DETG" — seção institucional no estilo home.html.
+ */
+#}
+<section id="institucional"{{ attributes.addClass('sobre-card', 'detg-section', 'detg-section--institucional') }}>
+  <div class="section-title-container">
+    <h2 class="section-title">{{ label|default('Sobre o DETG'|t) }}</h2>
+    <div class="section-line"></div>
+  </div>
+  <div{{ content_attributes.addClass('prose-detg') }}>
+    {{ content }}
+  </div>
+</section>

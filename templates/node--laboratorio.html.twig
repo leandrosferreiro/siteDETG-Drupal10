@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Página completa — Laboratório.
+ */
+#}
+<article{{ attributes.addClass('detg-node', 'detg-node--lab') }}>
+  {% if detg.has_image %}
+    <div class="detg-node__hero">
+      {{ content.field_imagem }}
+    </div>
+  {% endif %}
+
+  <div class="detg-node__intro">
+    {% if detg.sigla %}
+      <p class="detg-node__sigla">{{ detg.sigla }}</p>
+    {% endif %}
+    <h1 class="detg-node__title">{{ detg.name }}</h1>
+    {% if content.field_coordenacao|render|striptags|trim %}
+      <p class="detg-node__subtitle">
+        <span class="detg-node__label-inline">{{ 'Coordenação'|t }}:</span>
+        {{ content.field_coordenacao }}
+      </p>
+    {% endif %}
+  </div>
+
+  {% if content.body|render|striptags|trim %}
+    <div class="detg-node__body">{{ content.body }}</div>
+  {% endif %}
+</article>

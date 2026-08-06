@@ -1,22 +1,103 @@
-{# @file node.html.twig — Tema DETG/UFBA #}
-{% set classes = ['node','node--type-' ~ node.bundle|clean_class, view_mode ? 'node--view-mode-' ~ view_mode|clean_class, not page ? 'node--teaser'] %}
-<article{{ attributes.addClass(classes) }}>
-  {% if not page %}
-    <header>
-      {{ title_prefix }}
-      <h2{{ title_attributes.addClass('noticia-title') }}><a href="{{ url }}" rel="bookmark">{{ label }}</a></h2>
-      {{ title_suffix }}
-    </header>
-  {% endif %}
-  {% if display_submitted %}
-    <div style="display:flex;align-items:center;gap:.75rem;font-size:.75rem;color:var(--slate5);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray200);">
-      {{ author_picture }}
-      <span>{{ 'Por'|t }} <strong>{{ author_name }}</strong></span>
-      <time datetime="{{ node.createdtime|date('c') }}" style="margin-left:auto;">{{ date }}</time>
+{#
+/**
+ * @file
+ * DETG theme implementation to display a node.
+ *
+ * Available variables:
+ * - node: The node entity with limited access to object properties and methods.
+ * - label: (optional) The title of the node.
+ * - content: All node items. Use {{ content }} to print them all,
+ *   or print a subset such as {{ content.field_example }}.
+ * - author_name: Themed username of node author output from theme_username().
+ * - date: (optional) Themed creation date field.
+ * - view_mode: View mode; for example, "teaser" or "full".
+ * - teaser: Flag for the teaser state. Will be true if view_mode is 'teaser'.
+ * - page: Flag for the full page state.
+ * - logged_in: Flag for authenticated user status. Will be true when the
+ *   current user is a logged-in member.
+ * - is_admin: Flag for admin user status.
+ */
+#}
+
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+
+{% if view_mode == 'teaser' %}
+  {# --- Teaser: Card de Notícia --- #}
+  <article{{ attributes.addClass(classes, 'news-card') }}>
+    <div class="news-card-image">
+      {% if content.field_image %}
+        {{ content.field_image }}
+      {% else %}
+        <div class="no-image">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+      {% endif %}
+{% set meses = {
+  'Jan': 'JAN',
+  'Feb': 'FEV',
+  'Mar': 'MAR',
+  'Apr': 'ABR',
+  'May': 'MAI',
+  'Jun': 'JUN',
+  'Jul': 'JUL',
+  'Aug': 'AGO',
+  'Sep': 'SET',
+  'Oct': 'OUT',
+  'Nov': 'NOV',
+  'Dec': 'DEZ'
+} %}
+
+<div class="news-date-badge">
+  {% set mes = node.getCreatedTime()|date('M') %}
+  <span class="news-date-month">{{ meses[mes] }}</span>
+  <span class="news-date-day">{{ node.getCreatedTime()|date('d') }}</span>
+</div>
     </div>
-  {% endif %}
-  {% if content.field_image is defined %}<div style="margin-bottom:1.25rem;">{{ content.field_image }}</div>{% endif %}
-  <div{{ content_attributes.addClass('node__content') }}>{{ content|without('field_image','field_tags','links') }}</div>
-  {% if content.field_tags is defined %}<div style="margin-top:1rem;">{{ content.field_tags }}</div>{% endif %}
-  {% if content.links is defined %}<footer style="margin-top:1.25rem;padding-top:.75rem;border-top:1px solid var(--gray200);">{{ content.links }}</footer>{% endif %}
-</article>
+
+    <div class="news-card-body">
+      {% if content.field_categoria %}
+        <span class="news-category">{{ content.field_categoria }}</span>
+      {% endif %}
+      <h3 class="news-card-title">{{ label }}</h3>
+      <a href="{{ url }}" class="news-read-more">{{ 'Ler Mais'|t }} &rarr;</a>
+    </div>
+  </article>
+
+{% else %}
+  {# --- Full node view --- #}
+  <article{{ attributes.addClass(classes, 'sobre-card') }}>
+    {% if not page %}
+      <header>
+        <h2{{ title_attributes }}>
+          <a href="{{ url }}" rel="bookmark">{{ label }}</a>
+        </h2>
+      </header>
+    {% endif %}
+
+    <div{{ content_attributes.addClass('node__content', 'prose-detg') }}>
+      {{ content }}
+    </div>
+
+    {% if display_submitted %}
+      <footer class="node__meta" style="margin-top:1rem; font-size:0.75rem; color:#6b7280;">
+        {{ author_picture }}
+        <div{{ author_attributes }}>
+          {% trans %}
+            Publicado por <span class="username">{{ author_name }}</span> em {{ date }}
+          {% endtrans %}
+        </div>
+      </footer>
+    {% endif %}
+  </article>
+{% endif %}

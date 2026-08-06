@@ -1,0 +1,41 @@
+{#
+/**
+ * @file
+ * Página completa — Notícia.
+ */
+#}
+<article{{ attributes.addClass('detg-node', 'detg-node--noticia') }}>
+  <header class="detg-node__intro">
+    <div class="detg-node__meta">
+      {% if detg.categoria %}
+        <span class="news-category news-category--{{ detg.categoria_class }}">{{ detg.categoria }}</span>
+      {% endif %}
+      {% if content.field_data|render|striptags|trim %}
+        <time class="detg-node__date">{{ content.field_data }}</time>
+      {% elseif detg.day and detg.month %}
+        <time class="detg-node__date">{{ detg.day }} {{ detg.month }}</time>
+      {% endif %}
+    </div>
+    <h1 class="detg-node__title">{{ label }}</h1>
+    {% if content.field_nome|render|striptags|trim %}
+      <p class="detg-node__subtitle">{{ content.field_nome }}</p>
+    {% endif %}
+  </header>
+
+  {% if detg.has_image %}
+    <div class="detg-node__hero">
+      {{ content.field_imagem }}
+    </div>
+  {% endif %}
+
+  {% if content.body|render|striptags|trim %}
+    <div class="detg-node__body">{{ content.body }}</div>
+  {% endif %}
+
+  {% if content.field_edital|render|striptags|trim %}
+    <div class="detg-node__file">
+      <span class="detg-node__label">{{ 'Edital / arquivo'|t }}</span>
+      <div class="detg-node__file-link">{{ content.field_edital }}</div>
+    </div>
+  {% endif %}
+</article>

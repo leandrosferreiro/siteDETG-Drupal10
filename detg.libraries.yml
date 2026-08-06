@@ -1,11 +1,15 @@
-global:
-  version: '1.0.0'
+global-styling:
+  version: 1.x
   css:
     theme:
-      css/detg.css: {}
+      css/style.css: {}
+  dependencies:
+    - core/normalize
+
+global-scripts:
+  version: 1.x
   js:
-    js/detg.js:
-      minified: false
+    js/detg.js: {}
   dependencies:
     - core/drupal
-    - core/once
+    - core/jquery

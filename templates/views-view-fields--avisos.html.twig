@@ -1,0 +1,12 @@
+{#
+/**
+ * @file
+ * Campos de cada aviso: título + texto.
+ */
+#}
+{% if fields.title %}
+  <span class="aviso-title">{{ fields.title.content }}</span>
+{% endif %}
+{% if fields.body %}
+  <div class="aviso-body">{{ fields.body.content }}</div>
+{% endif %}

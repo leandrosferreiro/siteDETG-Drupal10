@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Teaser de Docente — card horizontal no estilo home.html.
+ */
+#}
+<article{{ attributes.addClass('docente-card-wrap') }}>
+  <a href="{{ url }}" class="docente-card" rel="bookmark">
+    {% if detg.has_image %}
+      <div class="docente-avatar docente-avatar--photo">
+        {{ content.field_imagem }}
+      </div>
+    {% else %}
+      <div class="docente-avatar" aria-hidden="true">{{ detg.initials }}</div>
+    {% endif %}
+    <div class="docente-info">
+      <h4 class="docente-name">{{ detg.name }}</h4>
+      {% if detg.role %}
+        <p class="docente-role">{{ detg.role }}</p>
+      {% endif %}
+    </div>
+  </a>
+</article>

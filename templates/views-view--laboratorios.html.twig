@@ -1,0 +1,52 @@
+{#
+/**
+ * @file
+ * View Laboratórios — grid de cards no estilo home.html.
+ */
+#}
+{%
+  set classes = [
+    'view',
+    'detg-view',
+    'view-laboratorios',
+    'view-id-' ~ id,
+    'view-display-id-' ~ display_id,
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+<section id="laboratorios"{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  <div class="section-title-container">
+    <h2 class="section-title">{{ title|default('Laboratórios'|t) }}</h2>
+    <div class="section-line"></div>
+    {% if display_id starts with 'block' %}
+      <a href="{{ path('view.laboratorios.page_1') }}" class="section-more-link">{{ 'Ver todos os laboratórios'|t }}</a>
+    {% endif %}
+  </div>
+  {{ title_suffix }}
+
+  {% if header %}
+    <div class="view-header">{{ header }}</div>
+  {% endif %}
+
+  {% if exposed %}
+    <div class="view-filters">{{ exposed }}</div>
+  {% endif %}
+
+  {% if rows %}
+    <div class="labs-grid detg-view__rows">{{ rows }}</div>
+  {% elseif empty %}
+    <div class="detg-view__empty">
+      {{ empty }}
+      <p>{{ 'Nenhum laboratório publicado ainda.'|t }}</p>
+    </div>
+  {% endif %}
+
+  {% if pager %}
+    <div class="detg-view__pager">{{ pager }}</div>
+  {% endif %}
+
+  {% if more %}
+    {{ more }}
+  {% endif %}
+</section>

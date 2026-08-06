@@ -1,0 +1,67 @@
+{#
+/**
+ * @file
+ * Wrapper padrão das views DETG.
+ */
+#}
+{%
+  set classes = [
+    'view',
+    'detg-view',
+    'view-' ~ id|clean_class,
+    'view-id-' ~ id,
+    'view-display-id-' ~ display_id,
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {% if title %}
+    <header class="detg-view__header">
+      <h1 class="detg-view__title">{{ title }}</h1>
+      <div class="detg-view__line"></div>
+    </header>
+  {% endif %}
+  {{ title_suffix }}
+
+  {% if header %}
+    <div class="view-header">{{ header }}</div>
+  {% endif %}
+
+  {% if exposed %}
+    <div class="view-filters">{{ exposed }}</div>
+  {% endif %}
+
+  {% if attachment_before %}
+    <div class="attachment attachment-before">{{ attachment_before }}</div>
+  {% endif %}
+
+  {% if rows %}
+    <div class="detg-view__rows">{{ rows }}</div>
+  {% elseif empty %}
+    <div class="detg-view__empty">
+      {{ empty }}
+      <p>Nenhum item publicado ainda. Cadastre conteúdos deste tipo no admin.</p>
+    </div>
+  {% endif %}
+
+  {% if pager %}
+    <div class="detg-view__pager">{{ pager }}</div>
+  {% endif %}
+
+  {% if attachment_after %}
+    <div class="attachment attachment-after">{{ attachment_after }}</div>
+  {% endif %}
+
+  {% if more %}
+    {{ more }}
+  {% endif %}
+
+  {% if footer %}
+    <div class="view-footer">{{ footer }}</div>
+  {% endif %}
+
+  {% if feed_icons %}
+    <div class="feed-icons">{{ feed_icons }}</div>
+  {% endif %}
+</div>

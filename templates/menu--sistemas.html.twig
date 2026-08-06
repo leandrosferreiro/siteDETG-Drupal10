@@ -1,0 +1,50 @@
+{#
+/**
+ * @file
+ * Menu Sistemas — links com nome + descrição (coluna esquerda).
+ *
+ * Cadastre no admin: título = nome (SIGAA), descrição = subtítulo
+ * (Sistema Acadêmico). Variável `description` vem do preprocess do tema.
+ */
+#}
+{% import _self as menus %}
+{{ menus.menu_links(items, attributes, 0) }}
+
+{% macro menu_links(items, attributes, menu_level) %}
+  {% import _self as menus %}
+  {% if items %}
+    <ul{{ attributes.addClass('sistemas-list') }}>
+      {% for item in items %}
+        {% set url_str = item.url.toString %}
+        {% set is_external = item.url.isExternal %}
+        {% set desc = item.description|default('')|trim %}
+        {%
+          set item_classes = [
+            'sistemas-list__item',
+            item.in_active_trail ? 'is-active',
+            desc ? 'sistemas-list__item--featured' : 'sistemas-list__item--secondary',
+          ]
+        %}
+        <li{{ item.attributes.addClass(item_classes) }}>
+          {% set link_attrs = item.url.getOption('attributes') ?? {} %}
+          {% set open_blank = is_external or (link_attrs.target is defined and link_attrs.target == '_blank') or 'reserva-equipamentos' in url_str %}
+          <a
+            href="{{ url_str }}"
+            class="sistema-link{% if item.in_active_trail %} is-active{% endif %}"
+            {% if open_blank %} target="_blank" rel="noopener noreferrer"{% endif %}
+          >
+            {% if desc %}
+              <span class="sistema-link-name">{{ item.title }}</span>
+              <span class="sistema-link-desc">{{ desc }}</span>
+            {% else %}
+              <span class="sistema-link-name sistema-link-name--plain">{{ item.title }}</span>
+            {% endif %}
+          </a>
+          {% if item.below %}
+            {{ menus.menu_links(item.below, create_attribute(), menu_level + 1) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}

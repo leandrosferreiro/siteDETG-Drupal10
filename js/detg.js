@@ -1,75 +1,64 @@
 /**
- * @file detg.js
- * Comportamentos JavaScript — Tema DETG/UFBA Drupal 10.4
+ * @file
+ * DETG Theme JavaScript
+ * Responsável pelo menu mobile e interações da página.
  */
-(function (Drupal, once) {
+(function ($, Drupal) {
   'use strict';
 
-  // Menu mobile toggle
+  /**
+   * Toggle do menu mobile.
+   */
   Drupal.behaviors.detgMobileMenu = {
-    attach(context) {
-      once('detg-mobile-menu', '#mobile-menu-btn', context).forEach(function (btn) {
-        const content = document.getElementById('mobile-menu-content');
-        if (!content) return;
-        btn.addEventListener('click', function () {
-          const open = content.classList.toggle('is-open');
-          btn.setAttribute('aria-expanded', open);
-        });
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape' && content.classList.contains('is-open')) {
-            content.classList.remove('is-open');
-            btn.setAttribute('aria-expanded', 'false');
-            btn.focus();
-          }
-        });
+    attach: function (context, settings) {
+      var btn = document.getElementById('mobile-menu-btn');
+      var menu = document.getElementById('mobile-menu-content');
+
+      if (!btn || !menu) return;
+
+      btn.addEventListener('click', function () {
+        menu.classList.toggle('is-open');
+        var isOpen = menu.classList.contains('is-open');
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       });
     }
   };
 
-  // Scroll suave para âncoras
-  Drupal.behaviors.detgSmoothScroll = {
-    attach(context) {
-      once('detg-smooth-scroll', 'a[href^="#"]', context).forEach(function (link) {
-        link.addEventListener('click', function (e) {
-          const id = this.getAttribute('href');
-          if (id === '#') return;
-          const target = document.querySelector(id);
-          if (!target) return;
-          e.preventDefault();
-          const nav = document.getElementById('main-nav');
-          const offset = nav ? nav.offsetHeight + 12 : 60;
-          window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - offset, behavior: 'smooth' });
-        });
-      });
-    }
-  };
-
-  // Busca no menu
+  /**
+   * Busca no menu — filtra links pelo termo digitado.
+   */
   Drupal.behaviors.detgMenuSearch = {
-    attach(context) {
-      once('detg-search', '#search_menu', context).forEach(function (input) {
-        input.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
+    attach: function (context, settings) {
+      var input = document.getElementById('search_menu');
+      if (!input) return;
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          var query = input.value.trim();
+          if (query) {
+            window.location.href = '/search?keys=' + encodeURIComponent(query);
+          }
+        }
+      });
+    }
+  };
+
+  /**
+   * Smooth scroll para âncoras internas.
+   */
+  Drupal.behaviors.detgSmoothScroll = {
+    attach: function (context, settings) {
+      var anchors = context.querySelectorAll('a[href^="#"]');
+      anchors.forEach(function (anchor) {
+        anchor.addEventListener('click', function (e) {
+          var target = document.querySelector(this.getAttribute('href'));
+          if (target) {
             e.preventDefault();
-            const q = input.value.trim();
-            if (q) window.location.href = '/search/node?keys=' + encodeURIComponent(q);
+            target.scrollIntoView({ behavior: 'smooth' });
           }
         });
       });
     }
   };
 
-  // Tabelas responsivas
-  Drupal.behaviors.detgTables = {
-    attach(context) {
-      once('detg-table', '#main-content table', context).forEach(function (table) {
-        if (table.closest('.table-wrap')) return;
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:1rem;';
-        table.parentNode.insertBefore(wrap, table);
-        wrap.appendChild(table);
-      });
-    }
-  };
-
-})(Drupal, once);
+})(jQuery, Drupal);

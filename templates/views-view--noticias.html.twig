@@ -1,0 +1,60 @@
+{#
+/**
+ * @file
+ * View Notícias — grade de cards (home na região news; página /noticias).
+ */
+#}
+{%
+  set classes = [
+    'view',
+    'detg-view',
+    'view-noticias',
+    'view-id-' ~ id,
+    'view-display-id-' ~ display_id,
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+{% set is_block = display_id starts with 'block' %}
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  <div class="{{ is_block ? 'news-header' : 'section-title-container' }}">
+    <div class="{{ is_block ? 'news-title-block' : '' }}">
+      <h2 class="section-title">{{ title|default(is_block ? 'Últimas Notícias'|t : 'Notícias'|t) }}</h2>
+      <div class="section-line{{ is_block ? ' mb-0' : '' }}"></div>
+    </div>
+    {% if is_block %}
+      <a href="{{ path('view.noticias.page_1') }}" class="news-ver-todas">
+        {{ 'Ver todas as notícias'|t }}
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+        </svg>
+      </a>
+    {% endif %}
+  </div>
+  {{ title_suffix }}
+
+  {% if header %}
+    <div class="view-header">{{ header }}</div>
+  {% endif %}
+
+  {% if exposed %}
+    <div class="view-filters">{{ exposed }}</div>
+  {% endif %}
+
+  {% if rows %}
+    <div class="news-grid detg-view__rows">{{ rows }}</div>
+  {% elseif empty %}
+    <div class="detg-view__empty">
+      {{ empty }}
+      <p>{{ 'Nenhuma notícia publicada ainda.'|t }}</p>
+    </div>
+  {% endif %}
+
+  {% if pager %}
+    <div class="detg-view__pager">{{ pager }}</div>
+  {% endif %}
+
+  {% if more %}
+    {{ more }}
+  {% endif %}
+</div>

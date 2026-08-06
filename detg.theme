@@ -1,0 +1,333 @@
+<?php
+
+/**
+ * @file
+ * Funções de preprocess do tema DETG.
+ */
+
+/**
+ * Returns the current node entity, if any.
+ */
+function detg_current_node(): ?\Drupal\node\NodeInterface {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (is_numeric($node)) {
+    $node = \Drupal\node\Entity\Node::load($node);
+  }
+  return $node instanceof \Drupal\node\NodeInterface ? $node : NULL;
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function detg_preprocess_html(array &$variables) {
+  $variables['is_front'] = \Drupal::service('path.matcher')->isFrontPage();
+  if ($variables['is_front']) {
+    $variables['attributes']['class'][] = 'path-frontpage';
+  }
+
+  // Classes úteis em páginas de conteúdo (inclui aliases como /Artur_Caldas_Brandao).
+  $node = detg_current_node();
+  if ($node) {
+    $variables['attributes']['class'][] = 'page-node';
+    $variables['attributes']['class'][] = 'page-node-type-' . $node->bundle();
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for page.
+ */
+function detg_theme_suggestions_page_alter(array &$suggestions, array $variables) {
+  $node = detg_current_node();
+  if ($node) {
+    $suggestions[] = 'page__node__' . $node->bundle();
+  }
+
+  // Layout próprio do sistema de empréstimos.
+  $route = \Drupal::routeMatch()->getRouteName();
+  if ($route && str_starts_with((string) $route, 'detg_lab_equip.')) {
+    $suggestions[] = 'page__lab_equip';
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function detg_preprocess_page(array &$variables) {
+  $node = detg_current_node();
+  $variables['detg_node'] = $node;
+  $variables['is_docente_page'] = $node && $node->bundle() === 'docente';
+  // Perfil de docente: layout full-width, sem colunas da home.
+  if (!empty($variables['is_docente_page'])) {
+    $variables['attributes']['class'][] = 'page-layout--docente';
+  }
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ *
+ * Expõe a descrição do item de menu (usada no menu Sistemas).
+ */
+function detg_preprocess_menu(array &$variables) {
+  $menu_name = $variables['menu_name'] ?? '';
+  if ($menu_name !== 'sistemas' && $menu_name !== 'secretaria') {
+    return;
+  }
+
+  foreach ($variables['items'] as &$item) {
+    $item['description'] = '';
+    if (!empty($item['original_link']) && method_exists($item['original_link'], 'getDescription')) {
+      $item['description'] = (string) $item['original_link']->getDescription();
+    }
+  }
+  unset($item);
+}
+
+/**
+ * Implements hook_preprocess_block().
+ *
+ * Oculta o título de página do core nas páginas de node — o template do
+ * conteúdo (detg-node__title) já exibe o título estilizado.
+ */
+function detg_preprocess_block(array &$variables) {
+  $plugin_id = $variables['plugin_id'] ?? '';
+  if ($plugin_id !== 'page_title_block') {
+    return;
+  }
+
+  $route = (string) \Drupal::routeMatch()->getRouteName();
+  $node_routes = [
+    'entity.node.canonical',
+    'entity.node.latest_version',
+    'entity.node.revision',
+  ];
+  if (in_array($route, $node_routes, TRUE)) {
+    // Esvazia o bloco para não haver H1 duplicado.
+    $variables['content'] = [];
+    $variables['attributes']['class'][] = 'visually-hidden';
+    $variables['attributes']['class'][] = 'detg-page-title--hidden';
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ *
+ * Prepara dados dos cards de teaser no estilo do protótipo home.html.
+ */
+function detg_preprocess_node(array &$variables) {
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  $variables['detg'] = [
+    'name' => $node->getTitle(),
+    'has_image' => FALSE,
+    'initials' => detg_initials($node->getTitle()),
+    'role' => '',
+    'sigla' => '',
+    'coord' => '',
+    'categoria' => '',
+    'categoria_class' => 'default',
+    'day' => '',
+    'month' => '',
+  ];
+
+  $bundle = $node->bundle();
+
+  // Imagem (docente / laboratório / notícia).
+  if ($node->hasField('field_imagem') && !$node->get('field_imagem')->isEmpty()) {
+    $variables['detg']['has_image'] = TRUE;
+  }
+
+  if ($bundle === 'docente') {
+    if ($node->hasField('field_nome') && !$node->get('field_nome')->isEmpty()) {
+      $name = trim(strip_tags((string) $node->get('field_nome')->value));
+      if ($name !== '') {
+        $variables['detg']['name'] = $name;
+        $variables['detg']['initials'] = detg_initials($name);
+      }
+    }
+
+    // Texto do card (teaser): denominação > cargo > titulação.
+    $variables['detg']['role_label'] = '';
+    if ($node->hasField('field_denominacao') && !$node->get('field_denominacao')->isEmpty()) {
+      $variables['detg']['role'] = trim(strip_tags((string) $node->get('field_denominacao')->value));
+      $variables['detg']['role_label'] = 'Denominação';
+    }
+    elseif ($node->hasField('field_cargo') && !$node->get('field_cargo')->isEmpty()) {
+      $value = $node->get('field_cargo')->value;
+      $allowed = $node->getFieldDefinition('field_cargo')->getSetting('allowed_values') ?: [];
+      $label = $allowed[$value] ?? $value;
+      $variables['detg']['role'] = $label . ' do DETG';
+      $variables['detg']['role_label'] = 'Cargo';
+    }
+    elseif ($node->hasField('field_titulacao') && !$node->get('field_titulacao')->isEmpty()) {
+      $variables['detg']['role'] = trim(strip_tags((string) $node->get('field_titulacao')->value));
+      $variables['detg']['role_label'] = 'Titulação';
+    }
+
+    // Flags de campos (evita |render duplo no Twig).
+    $field_flags = [
+      'has_denominacao' => 'field_denominacao',
+      'has_titulacao' => 'field_titulacao',
+      'has_regime' => 'field_regime_de_trabalho',
+      'has_cargo' => 'field_cargo',
+      'has_email' => 'field_e_mail',
+      'has_telefone' => 'field_telefone',
+      'has_matricula' => 'field_matricula',
+      'has_lattes' => 'field_lattes',
+      'has_educacao' => 'field_educacao',
+      'has_pesquisa' => 'field_linha_de_pesquisa',
+      'has_publicacoes' => 'field_publicacoes',
+      'has_projetos' => 'field_projetos',
+      'has_body' => 'body',
+    ];
+    foreach ($field_flags as $flag => $field_name) {
+      $variables['detg'][$flag] = $node->hasField($field_name) && !$node->get($field_name)->isEmpty();
+    }
+
+    // Coluna esquerda (sidebar).
+    $variables['detg']['has_sidebar_meta'] = $variables['detg']['has_denominacao']
+      || $variables['detg']['has_titulacao']
+      || $variables['detg']['has_regime']
+      || $variables['detg']['has_cargo']
+      || $variables['detg']['has_email']
+      || $variables['detg']['has_telefone']
+      || $variables['detg']['has_matricula']
+      || $variables['detg']['has_lattes'];
+
+    // Coluna direita (conteúdo acadêmico).
+    $variables['detg']['has_main_content'] = $variables['detg']['has_educacao']
+      || $variables['detg']['has_pesquisa']
+      || $variables['detg']['has_publicacoes']
+      || $variables['detg']['has_projetos']
+      || $variables['detg']['has_body'];
+
+    // No teaser não precisamos renderizar campos crus (evita HTML solto).
+    if ($variables['view_mode'] === 'teaser') {
+      foreach ([
+        'field_nome',
+        'field_titulacao',
+        'field_cargo',
+        'field_denominacao',
+        'field_regime_de_trabalho',
+        'field_linha_de_pesquisa',
+        'field_educacao',
+        'field_publicacoes',
+        'field_projetos',
+        'body',
+      ] as $field) {
+        unset($variables['content'][$field]);
+      }
+    }
+    else {
+      // O template já imprime os títulos (dt / h2). Oculta labels do core
+      // para não exibir "Denominação", "Regime de trabalho" etc. duas vezes.
+      foreach ([
+        'field_denominacao',
+        'field_titulacao',
+        'field_regime_de_trabalho',
+        'field_cargo',
+        'field_e_mail',
+        'field_telefone',
+        'field_matricula',
+        'field_lattes',
+        'field_educacao',
+        'field_linha_de_pesquisa',
+        'field_publicacoes',
+        'field_projetos',
+        'body',
+        'field_imagem',
+      ] as $field) {
+        if (isset($variables['content'][$field])) {
+          $variables['content'][$field]['#label_display'] = 'hidden';
+        }
+      }
+      // Evita campos extras (uid, created, field_nome) soltos no final.
+      foreach (['uid', 'created', 'field_nome', 'title'] as $field) {
+        unset($variables['content'][$field]);
+      }
+    }
+  }
+
+  if ($bundle === 'laboratorio') {
+    if ($node->hasField('field_sigla') && !$node->get('field_sigla')->isEmpty()) {
+      $variables['detg']['sigla'] = trim((string) $node->get('field_sigla')->value);
+    }
+    if ($node->hasField('field_coordenacao') && !$node->get('field_coordenacao')->isEmpty()) {
+      $variables['detg']['coord'] = trim((string) $node->get('field_coordenacao')->value);
+    }
+    // Nome amigável: título do node (nome completo do lab).
+    $variables['detg']['name'] = $node->getTitle();
+
+    if ($variables['view_mode'] === 'teaser') {
+      foreach (['field_sigla', 'field_coordenacao', 'field_nome', 'body'] as $field) {
+        unset($variables['content'][$field]);
+      }
+    }
+  }
+
+  if ($bundle === 'noticia') {
+    if ($node->hasField('field_categoria') && !$node->get('field_categoria')->isEmpty()) {
+      $value = $node->get('field_categoria')->value;
+      $allowed = $node->getFieldDefinition('field_categoria')->getSetting('allowed_values') ?: [];
+      $variables['detg']['categoria'] = $allowed[$value] ?? $value;
+      $variables['detg']['categoria_class'] = detg_categoria_class($value);
+    }
+
+    // Badge de data: usa field_data se parecer uma data, senão created.
+    $timestamp = (int) $node->getCreatedTime();
+    if ($node->hasField('field_data') && !$node->get('field_data')->isEmpty()) {
+      $raw = trim((string) $node->get('field_data')->value);
+      // Aceita "28/09/2026" no início da string.
+      if (preg_match('#(\d{1,2})/(\d{1,2})/(\d{4})#', $raw, $m)) {
+        $parsed = strtotime(sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]));
+        if ($parsed) {
+          $timestamp = $parsed;
+        }
+      }
+    }
+
+    $formatter = \Drupal::service('date.formatter');
+    $variables['detg']['day'] = $formatter->format($timestamp, 'custom', 'd');
+    // Mês curto em PT-BR (ex.: set, out).
+    $variables['detg']['month'] = $formatter->format($timestamp, 'custom', 'M');
+
+    if ($variables['view_mode'] === 'teaser') {
+      foreach (['field_data', 'field_categoria', 'field_nome', 'field_edital', 'body'] as $field) {
+        unset($variables['content'][$field]);
+      }
+    }
+  }
+}
+
+/**
+ * Gera iniciais a partir de um nome (até 2 letras).
+ */
+function detg_initials(string $name): string {
+  $name = trim(preg_replace('/\s+/u', ' ', strip_tags($name)) ?? '');
+  if ($name === '') {
+    return '?';
+  }
+  $parts = preg_split('/\s+/u', $name) ?: [];
+  $parts = array_values(array_filter($parts, static function ($p) {
+    // Ignora preposições curtas comuns.
+    return !in_array(mb_strtolower($p), ['de', 'da', 'do', 'das', 'dos', 'e'], TRUE);
+  }));
+  if (count($parts) >= 2) {
+    return mb_strtoupper(mb_substr($parts[0], 0, 1) . mb_substr($parts[count($parts) - 1], 0, 1));
+  }
+  return mb_strtoupper(mb_substr($parts[0] ?? $name, 0, 2));
+}
+
+/**
+ * Mapeia valor de categoria para classe CSS de cor.
+ */
+function detg_categoria_class(string $value): string {
+  $map = [
+    'concurso' => 'blue',
+    'processo_seletivo' => 'blue',
+    'monitoria' => 'blue',
+    'seminario' => 'indigo',
+    'palestra' => 'indigo',
+    'aula_de_campo' => 'green',
+  ];
+  return $map[$value] ?? 'orange';
+}

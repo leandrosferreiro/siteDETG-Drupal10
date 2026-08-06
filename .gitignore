@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDEs / editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.bak
+
+# Ambiente e segredos (caso sejam adicionados no futuro)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Drupal (se este repo crescer além do tema)
+web/sites/*/settings.php
+web/sites/*/settings.local.php
+web/sites/*/services.yml
+web/sites/*/files/
+private/
+vendor/
+
+# PHP / Composer
+composer.phar

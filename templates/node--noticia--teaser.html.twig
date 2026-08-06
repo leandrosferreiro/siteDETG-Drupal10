@@ -1,0 +1,32 @@
+{#
+/**
+ * @file
+ * Teaser de Notícia — card com badge de data no estilo home.html.
+ */
+#}
+<article{{ attributes.addClass('news-card-wrap') }}>
+  <a href="{{ url }}" class="news-card news-card--{{ detg.categoria_class }}" rel="bookmark">
+    <div class="news-card-image">
+      <div class="news-date-badge">
+        <span class="news-date-month">{{ detg.month }}</span>
+        <span class="news-date-day news-date-day--{{ detg.categoria_class }}">{{ detg.day }}</span>
+      </div>
+      {% if detg.has_image %}
+        {{ content.field_imagem }}
+      {% else %}
+        <div class="no-image" aria-hidden="true">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+          </svg>
+        </div>
+      {% endif %}
+    </div>
+    <div class="news-card-body">
+      {% if detg.categoria %}
+        <span class="news-category news-category--{{ detg.categoria_class }}">{{ detg.categoria }}</span>
+      {% endif %}
+      <h3 class="news-card-title">{{ label }}</h3>
+      <span class="news-card-more">{{ 'Ler Mais'|t }} &rarr;</span>
+    </div>
+  </a>
+</article>

@@ -1,23 +1,24 @@
 name: DETG
 type: theme
-description: 'Tema institucional do DETG — Escola Politécnica da UFBA. Fiel ao layout home.html: Inter, azul/laranja-terra, sem logo, barra gov.br, avisos, agenda Google.'
-package: DETG/UFBA
-core_version_requirement: ^10.4
+description: 'Tema oficial do Departamento de Engenharia de Transportes e Geodésia - UFBA. Compatível com Drupal 10.'
+package: DETG / UFBA
+core_version_requirement: ^10
 base theme: false
+version: 1.0.0
 
 libraries:
-  - detg/global
+  - detg/global-styling
+  - detg/global-scripts
 
 regions:
-  barra_governo:   'Barra do Governo Federal'
-  header:          'Cabeçalho (Título)'
-  primary_menu:    'Menu Principal'
-  sidebar_first:   'Lateral Esquerda (Sistemas / Secretaria)'
-  content:         'Conteúdo Principal'
-  sidebar_second:  'Lateral Direita (Agenda / Avisos)'
-  footer:          'Rodapé'
-  page_top:        'Topo técnico (Drupal)'
-  page_bottom:     'Base técnica (Drupal)'
-
-features:
-  - favicon
+  header: 'Topo (Header)'
+  primary_menu: 'Menu Principal'
+  sidebar_first: 'Coluna Esquerda (Sistemas/Secretaria)'
+  content: 'Conteúdo Principal'
+  sidebar_second: 'Coluna Direita (Calendário/Avisos)'
+  news: 'Seção de Notícias'
+  footer: 'Rodapé'
+  footer_col1: 'Rodapé – Coluna 1'
+  footer_col2: 'Rodapé – Coluna 2'
+  footer_col3: 'Rodapé – Coluna 3'
+  footer_col4: 'Rodapé – Coluna 4'

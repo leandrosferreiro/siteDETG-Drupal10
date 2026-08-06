@@ -1,0 +1,154 @@
+{#
+/**
+ * @file
+ * Página completa — Docente.
+ *
+ * Duas colunas (estilo perfil acadêmico):
+ * - Esquerda: foto + Denominação, Titulação, Regime de trabalho e contatos
+ * - Direita: Educação, Linha de pesquisa, Publicações, Projetos e Sobre
+ */
+#}
+<article{{ attributes.addClass('detg-node', 'detg-node--docente', 'docente-profile') }}>
+
+  <header class="docente-profile__header">
+    <p class="docente-profile__eyebrow">
+      <a href="{{ path('view.docentes.page_1') }}">{{ 'Corpo Docente'|t }}</a>
+    </p>
+    <h1 class="docente-profile__title">{{ detg.name }}</h1>
+  </header>
+
+  <div class="docente-profile__grid">
+
+    {# ---------- Coluna esquerda ---------- #}
+    <aside class="docente-profile__sidebar" aria-label="{{ 'Informações do docente'|t }}">
+      <div class="docente-profile__photo-wrap">
+        {% if detg.has_image %}
+          <div class="docente-profile__photo">{{ content.field_imagem }}</div>
+        {% else %}
+          <div class="docente-profile__photo docente-profile__photo--initials" aria-hidden="true">
+            {{ detg.initials }}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if detg.has_sidebar_meta %}
+        <dl class="docente-profile__meta">
+          {% if detg.has_denominacao %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'Denominação'|t }}</dt>
+              <dd>{{ content.field_denominacao }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_titulacao %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'Titulação'|t }}</dt>
+              <dd>{{ content.field_titulacao }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_regime %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'Regime de trabalho'|t }}</dt>
+              <dd>{{ content.field_regime_de_trabalho }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_cargo %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'Cargo'|t }}</dt>
+              <dd>{{ content.field_cargo }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_email %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'E-mail'|t }}</dt>
+              <dd>{{ content.field_e_mail }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_telefone %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'Telefone'|t }}</dt>
+              <dd>{{ content.field_telefone }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_matricula %}
+            <div class="docente-profile__meta-row">
+              <dt>{{ 'Matrícula'|t }}</dt>
+              <dd>{{ content.field_matricula }}</dd>
+            </div>
+          {% endif %}
+
+          {% if detg.has_lattes %}
+            <div class="docente-profile__meta-row">
+              <dt>Lattes</dt>
+              <dd class="docente-profile__meta-link">{{ content.field_lattes }}</dd>
+            </div>
+          {% endif %}
+        </dl>
+      {% endif %}
+    </aside>
+
+    {# ---------- Coluna direita ---------- #}
+    <div class="docente-profile__main">
+      {% if detg.has_main_content %}
+
+        {% if detg.has_body %}
+          <section class="docente-profile__section" aria-labelledby="docente-bio-heading">
+            <h2 id="docente-bio-heading" class="docente-profile__section-title">{{ 'Sobre'|t }}</h2>
+            <div class="docente-profile__body">
+              {{ content.body }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if detg.has_educacao %}
+          <section class="docente-profile__section" aria-labelledby="docente-educacao-heading">
+            <h2 id="docente-educacao-heading" class="docente-profile__section-title">{{ 'Educação'|t }}</h2>
+            <div class="docente-profile__body">
+              {{ content.field_educacao }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if detg.has_pesquisa %}
+          <section class="docente-profile__section" aria-labelledby="docente-pesquisa-heading">
+            <h2 id="docente-pesquisa-heading" class="docente-profile__section-title">{{ 'Linha de pesquisa'|t }}</h2>
+            <div class="docente-profile__body docente-profile__body--list">
+              {{ content.field_linha_de_pesquisa }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if detg.has_publicacoes %}
+          <section class="docente-profile__section" aria-labelledby="docente-publicacoes-heading">
+            <h2 id="docente-publicacoes-heading" class="docente-profile__section-title">{{ 'Publicações'|t }}</h2>
+            <div class="docente-profile__body docente-profile__body--list">
+              {{ content.field_publicacoes }}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if detg.has_projetos %}
+          <section class="docente-profile__section" aria-labelledby="docente-projetos-heading">
+            <h2 id="docente-projetos-heading" class="docente-profile__section-title">{{ 'Projetos'|t }}</h2>
+            <div class="docente-profile__body docente-profile__body--list">
+              {{ content.field_projetos }}
+            </div>
+          </section>
+        {% endif %}
+
+      {% else %}
+        <section class="docente-profile__section docente-profile__section--empty">
+          <p class="docente-profile__empty">
+            {{ 'Informações acadêmicas em atualização.'|t }}
+          </p>
+        </section>
+      {% endif %}
+    </div>
+
+  </div>
+</article>

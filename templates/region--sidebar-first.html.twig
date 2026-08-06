@@ -1,0 +1,18 @@
+{#
+/**
+ * @file
+ * Região sidebar_first — empilha Sistemas e Secretaria com espaçamento.
+ */
+#}
+{%
+  set classes = [
+    'region',
+    'region-sidebar-first',
+    'sidebar-left__stack',
+  ]
+%}
+{% if content %}
+  <div{{ attributes.addClass(classes) }}>
+    {{ content }}
+  </div>
+{% endif %}

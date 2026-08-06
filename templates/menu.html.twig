@@ -1,17 +1,53 @@
-{# @file menu.html.twig — Tema DETG/UFBA #}
+{#
+/**
+ * @file
+ * Menu DETG — item Início com ícone SVG (não coloque SVG no admin do menu).
+ #}
 {% import _self as menus %}
-{% macro menu_links(items, menu_level) %}
+{{ menus.menu_links(items, attributes, 0) }}
+
+{% macro menu_links(items, attributes, menu_level) %}
   {% import _self as menus %}
   {% if items %}
-    <ul class="{{ menu_level == 0 ? 'nav-list' : '' }}" role="{{ menu_level == 0 ? 'list' : 'menu' }}">
+    {% if menu_level == 0 %}
+      <ul class="nav-links">
+    {% else %}
+      <ul class="sub-menu">
+    {% endif %}
     {% for item in items %}
-      {% set li_classes = ['menu-item', item.is_expanded ? 'menu-item--expanded', item.in_active_trail ? 'active-trail'] %}
-      <li{{ item.attributes.addClass(li_classes) }} role="none">
-        {{ link(item.title, item.url, {'class': ['nav-item', item.in_active_trail ? 'is-active'], 'role': 'menuitem'}) }}
-        {% if item.below %}{{ menus.menu_links(item.below, menu_level + 1) }}{% endif %}
+      {% set url_str = item.url.toString %}
+      {% set is_home = url_str == '/' or url_str == path('<front>') or item.title|render|striptags|trim|lower in ['início', 'inicio', 'home'] %}
+      {%
+        set item_classes = [
+          'nav-menu-item',
+          item.is_expanded ? 'nav-menu-item--expanded',
+          item.is_collapsed ? 'nav-menu-item--collapsed',
+          item.in_active_trail ? 'nav-menu-item--active-trail',
+          is_home ? 'nav-menu-item--home',
+        ]
+      %}
+      <li{{ item.attributes.addClass(item_classes) }}>
+        <a href="{{ url_str }}" class="nav-item{% if item.in_active_trail and not is_home %} is-active{% endif %}{% if is_home %} nav-item--home{% endif %}"{% if is_home %} title="{{ 'Início'|t }}"{% endif %}>
+          {% if is_home %}
+            {# Ícone SVG do Início — definido no tema, não no admin #}
+            <svg class="nav-home-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 21l4-9 4 9" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 12h4" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.5 12V7.5a1.5 1.5 0 013 0V12" />
+              <circle cx="12" cy="7.5" r="2.2" stroke-width="1.5" fill="rgba(255,255,255,0.1)" />
+              <circle cx="12" cy="7.5" r="0.5" fill="currentColor" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 4h4" />
+            </svg>
+            <span class="visually-hidden">{{ item.title }}</span>
+          {% else %}
+            {{ item.title }}
+          {% endif %}
+        </a>
+        {% if item.below %}
+          {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+        {% endif %}
       </li>
     {% endfor %}
     </ul>
   {% endif %}
 {% endmacro %}
-{{ menus.menu_links(items, 0) }}

@@ -1,0 +1,22 @@
+{#
+/**
+ * @file
+ * Lista de avisos no estilo do quadro amarelo.
+ */
+#}
+{% if title %}
+  <h3>{{ title }}</h3>
+{% endif %}
+<ul class="avisos-list">
+  {% for row in rows %}
+    {%
+      set row_classes = [
+        'aviso-item',
+        default_row_class ? 'views-row',
+      ]
+    %}
+    <li{{ row.attributes.addClass(row_classes) }}>
+      {{- row.content -}}
+    </li>
+  {% endfor %}
+</ul>
