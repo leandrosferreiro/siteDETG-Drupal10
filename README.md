@@ -142,5 +142,5 @@ Em resumo: você pode usar, estudar, modificar e redistribuir o código, desde q
 
 ## Créditos
 
-Desenvolvido para o DETG/UFBA. Design baseado no protótipo HTML fornecido pelo departamento.  
-Sistema de empréstimos inspirado no [VaiVem](https://github.com/willemarcel/vaivem).
+Desenvolvido para o Departamento de Engenharia de Transportes e Geosédia da Universidade Federal da Bahia. 
+Sistema de empréstimos de equipamentos inspirado no [VaiVem](https://github.com/willemarcel/vaivem).

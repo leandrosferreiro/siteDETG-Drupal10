@@ -81,14 +81,52 @@
               <dd>{{ content.field_matricula }}</dd>
             </div>
           {% endif %}
-
-          {% if detg.has_lattes %}
-            <div class="docente-profile__meta-row">
-              <dt>Lattes</dt>
-              <dd class="docente-profile__meta-link">{{ content.field_lattes }}</dd>
-            </div>
-          {% endif %}
         </dl>
+      {% endif %}
+
+      {# Links sociais como ícones (Lattes, LinkedIn, Website, YouTube, GitHub) #}
+      {% if detg.has_social_links %}
+        <nav class="docente-profile__social" aria-label="{{ 'Perfis e links'|t }}">
+          {% for link in detg.social_links %}
+            <a
+              href="{{ link.url }}"
+              class="docente-profile__social-link docente-profile__social-link--{{ link.id }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="{{ link.label }}"
+              aria-label="{{ link.label }}"
+            >
+              {% if link.id == 'lattes' %}
+                {# Ícone Currículo Lattes — capelo acadêmico (referência visual ao CNPq/Lattes) #}
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                  <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+                </svg>
+              {% elseif link.id == 'linkedin' %}
+                {# Ícone LinkedIn (logo "in" em quadrado arredondado) #}
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 1 1 6.5 4.75a1.75 1.75 0 0 1 0 3.5zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93-.79 0-1.39.57-1.62 1.12-.08.2-.1.48-.1.76V19h-3s.04-8.54 0-9h3v1.3a3.3 3.3 0 0 1 2.99-1.65c1.55 0 3.11.92 3.11 3.68V19z"/>
+                </svg>
+              {% elseif link.id == 'website' %}
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              {% elseif link.id == 'youtube' %}
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              {% elseif link.id == 'github' %}
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.207 11.387.6.11.793-.26.793-.577 0-.285-.01-1.04-.016-2.04-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.333-5.467-5.93 0-1.31.468-2.382 1.236-3.222-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.3 1.23a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.655 1.653.243 2.873.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.807 5.624-5.48 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.902-.015 3.297 0 .32.192.694.8.576C20.565 21.796 24 17.297 24 12 24 5.37 18.63 0 12 0z"/>
+                </svg>
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M3.9 12a5 5 0 0 1 0-7.07l.7-.7a5 5 0 0 1 7.07 0L14 6.59 12.59 8 10.3 5.7a3 3 0 0 0-4.24 0l-.7.7a3 3 0 0 0 0 4.24L7.59 13 6.17 14.41 3.9 12zm16.2 0a5 5 0 0 1 0 7.07l-.7.7a5 5 0 0 1-7.07 0L10 17.41 11.41 16l2.29 2.3a3 3 0 0 0 4.24 0l.7-.7a3 3 0 0 0 0-4.24L16.41 11 17.83 9.59 20.1 12zM8.46 14.12l5.66-5.66 1.41 1.41-5.66 5.66-1.41-1.41z"/>
+                </svg>
+              {% endif %}
+            </a>
+          {% endfor %}
+        </nav>
       {% endif %}
     </aside>
 

@@ -55,11 +55,28 @@ function detg_theme_suggestions_page_alter(array &$suggestions, array $variables
 function detg_preprocess_page(array &$variables) {
   $node = detg_current_node();
   $variables['detg_node'] = $node;
-  $variables['is_docente_page'] = $node && $node->bundle() === 'docente';
-  // Perfil de docente: layout full-width, sem colunas da home.
-  if (!empty($variables['is_docente_page'])) {
+  $is_pessoa = $node && in_array($node->bundle(), ['docente', 'pessoa'], TRUE);
+  $variables['is_docente_page'] = $is_pessoa;
+  // Perfil de pessoa/docente: layout full-width, sem colunas da home.
+  if ($is_pessoa) {
     $variables['attributes']['class'][] = 'page-layout--docente';
   }
+}
+
+/**
+ * Implements hook_theme_suggestions_node_alter().
+ *
+ * Reaproveita templates de docente se o tipo for "pessoa".
+ */
+function detg_theme_suggestions_node_alter(array &$suggestions, array $variables) {
+  $node = $variables['elements']['#node'] ?? NULL;
+  if (!$node instanceof \Drupal\node\NodeInterface || $node->bundle() !== 'pessoa') {
+    return;
+  }
+  $view_mode = $variables['elements']['#view_mode'] ?? 'full';
+  $mode = str_replace('-', '_', (string) $view_mode);
+  $suggestions[] = 'node__docente';
+  $suggestions[] = 'node__docente__' . $mode;
 }
 
 /**
@@ -136,7 +153,8 @@ function detg_preprocess_node(array &$variables) {
     $variables['detg']['has_image'] = TRUE;
   }
 
-  if ($bundle === 'docente') {
+  // Tipo "docente" (local) ou "pessoa" (servidor / rename).
+  if (in_array($bundle, ['docente', 'pessoa'], TRUE)) {
     if ($node->hasField('field_nome') && !$node->get('field_nome')->isEmpty()) {
       $name = trim(strip_tags((string) $node->get('field_nome')->value));
       if ($name !== '') {
@@ -145,23 +163,27 @@ function detg_preprocess_node(array &$variables) {
       }
     }
 
-    // Texto do card (teaser): denominação > cargo > titulação.
+    // Texto do card (teaser): cargo > denominação > titulação.
     $variables['detg']['role_label'] = '';
-    if ($node->hasField('field_denominacao') && !$node->get('field_denominacao')->isEmpty()) {
-      $variables['detg']['role'] = trim(strip_tags((string) $node->get('field_denominacao')->value));
-      $variables['detg']['role_label'] = 'Denominação';
-    }
-    elseif ($node->hasField('field_cargo') && !$node->get('field_cargo')->isEmpty()) {
+    if ($node->hasField('field_cargo') && !$node->get('field_cargo')->isEmpty()) {
       $value = $node->get('field_cargo')->value;
       $allowed = $node->getFieldDefinition('field_cargo')->getSetting('allowed_values') ?: [];
       $label = $allowed[$value] ?? $value;
       $variables['detg']['role'] = $label . ' do DETG';
       $variables['detg']['role_label'] = 'Cargo';
     }
+    elseif ($node->hasField('field_denominacao') && !$node->get('field_denominacao')->isEmpty()) {
+      $variables['detg']['role'] = trim(strip_tags((string) $node->get('field_denominacao')->value));
+      $variables['detg']['role_label'] = 'Denominação';
+    }
     elseif ($node->hasField('field_titulacao') && !$node->get('field_titulacao')->isEmpty()) {
       $variables['detg']['role'] = trim(strip_tags((string) $node->get('field_titulacao')->value));
       $variables['detg']['role_label'] = 'Titulação';
     }
+
+    // Links sociais com ícone (Lattes, LinkedIn, Website, YouTube, GitHub).
+    $variables['detg']['social_links'] = detg_pessoa_social_links($node);
+    $variables['detg']['has_social_links'] = !empty($variables['detg']['social_links']);
 
     // Flags de campos (evita |render duplo no Twig).
     $field_flags = [
@@ -183,15 +205,14 @@ function detg_preprocess_node(array &$variables) {
       $variables['detg'][$flag] = $node->hasField($field_name) && !$node->get($field_name)->isEmpty();
     }
 
-    // Coluna esquerda (sidebar).
+    // Coluna esquerda (sidebar) — links sociais ficam na barra de ícones.
     $variables['detg']['has_sidebar_meta'] = $variables['detg']['has_denominacao']
       || $variables['detg']['has_titulacao']
       || $variables['detg']['has_regime']
       || $variables['detg']['has_cargo']
       || $variables['detg']['has_email']
       || $variables['detg']['has_telefone']
-      || $variables['detg']['has_matricula']
-      || $variables['detg']['has_lattes'];
+      || $variables['detg']['has_matricula'];
 
     // Coluna direita (conteúdo acadêmico).
     $variables['detg']['has_main_content'] = $variables['detg']['has_educacao']
@@ -200,9 +221,20 @@ function detg_preprocess_node(array &$variables) {
       || $variables['detg']['has_projetos']
       || $variables['detg']['has_body'];
 
+    $social_fields = [
+      'field_lattes',
+      'field_linkedin',
+      'field_linkdin',
+      'field_website',
+      'field_site',
+      'field_web',
+      'field_youtube',
+      'field_github',
+    ];
+
     // No teaser não precisamos renderizar campos crus (evita HTML solto).
     if ($variables['view_mode'] === 'teaser') {
-      foreach ([
+      foreach (array_merge([
         'field_nome',
         'field_titulacao',
         'field_cargo',
@@ -213,7 +245,7 @@ function detg_preprocess_node(array &$variables) {
         'field_publicacoes',
         'field_projetos',
         'body',
-      ] as $field) {
+      ], $social_fields) as $field) {
         unset($variables['content'][$field]);
       }
     }
@@ -228,7 +260,6 @@ function detg_preprocess_node(array &$variables) {
         'field_e_mail',
         'field_telefone',
         'field_matricula',
-        'field_lattes',
         'field_educacao',
         'field_linha_de_pesquisa',
         'field_publicacoes',
@@ -239,6 +270,10 @@ function detg_preprocess_node(array &$variables) {
         if (isset($variables['content'][$field])) {
           $variables['content'][$field]['#label_display'] = 'hidden';
         }
+      }
+      // Links sociais: só a barra de ícones (não renderizar texto/URL).
+      foreach ($social_fields as $field) {
+        unset($variables['content'][$field]);
       }
       // Evita campos extras (uid, created, field_nome) soltos no final.
       foreach (['uid', 'created', 'field_nome', 'title'] as $field) {
@@ -296,6 +331,127 @@ function detg_preprocess_node(array &$variables) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_preprocess_views_view_unformatted().
+ *
+ * Bloco da home (docentes/block_1): remove quem não tem cargo.
+ * (hook_views_query_alter não roda em temas — só em módulos.)
+ */
+function detg_preprocess_views_view_unformatted(array &$variables) {
+  /** @var \Drupal\views\ViewExecutable $view */
+  $view = $variables['view'];
+  if ($view->id() !== 'docentes' || $view->current_display !== 'block_1') {
+    return;
+  }
+
+  foreach ($variables['rows'] as $index => $row) {
+    $entity = $view->result[$index]->_entity ?? NULL;
+    if (!$entity instanceof \Drupal\node\NodeInterface) {
+      continue;
+    }
+    if (!$entity->hasField('field_cargo') || $entity->get('field_cargo')->isEmpty()) {
+      unset($variables['rows'][$index]);
+    }
+  }
+  $variables['rows'] = array_values($variables['rows']);
+}
+
+/**
+ * Monta links sociais (ícones) a partir dos campos de pessoa/docente.
+ *
+ * @return array<int, array{id: string, label: string, url: string}>
+ */
+function detg_pessoa_social_links(\Drupal\node\NodeInterface $node): array {
+  $networks = [
+    'lattes' => [
+      'label' => 'Lattes',
+      'fields' => ['field_lattes'],
+    ],
+    'linkedin' => [
+      'label' => 'LinkedIn',
+      'fields' => ['field_linkedin', 'field_linkdin'],
+    ],
+    'website' => [
+      'label' => 'Website',
+      'fields' => ['field_website', 'field_site', 'field_web'],
+    ],
+    'youtube' => [
+      'label' => 'YouTube',
+      'fields' => ['field_youtube'],
+    ],
+    'github' => [
+      'label' => 'GitHub',
+      'fields' => ['field_github'],
+    ],
+  ];
+
+  $links = [];
+  foreach ($networks as $id => $meta) {
+    foreach ($meta['fields'] as $field_name) {
+      $url = detg_extract_field_uri($node, $field_name);
+      if ($url !== '') {
+        $links[] = [
+          'id' => $id,
+          'label' => $meta['label'],
+          'url' => $url,
+        ];
+        break;
+      }
+    }
+  }
+  return $links;
+}
+
+/**
+ * Extrai URI de campo link, uri ou string.
+ */
+function detg_extract_field_uri(\Drupal\node\NodeInterface $node, string $field_name): string {
+  if (!$node->hasField($field_name) || $node->get($field_name)->isEmpty()) {
+    return '';
+  }
+
+  $item = $node->get($field_name)->first();
+  if (!$item) {
+    return '';
+  }
+
+  $type = $item->getFieldDefinition()->getType();
+
+  if ($type === 'link') {
+    try {
+      $url = $item->getUrl();
+      if ($url) {
+        return $url->toString();
+      }
+    }
+    catch (\Throwable $e) {
+      // Campo link incompleto.
+    }
+    return '';
+  }
+
+  $raw = '';
+  if (isset($item->uri)) {
+    $raw = trim((string) $item->uri);
+  }
+  if ($raw === '' && isset($item->value)) {
+    $raw = trim((string) $item->value);
+  }
+  if ($raw === '') {
+    return '';
+  }
+
+  // Aceita e-mail só se for campo social indevido — não normaliza.
+  if (preg_match('#^(https?|ftp)://#i', $raw) || str_starts_with($raw, 'mailto:')) {
+    return $raw;
+  }
+  // URL relativa ou domínio sem esquema.
+  if (str_starts_with($raw, '/')) {
+    return $raw;
+  }
+  return 'https://' . ltrim($raw, '/');
 }
 
 /**
