@@ -77,7 +77,11 @@
 {% else %}
   {# --- Full node view --- #}
   <article{{ attributes.addClass(classes, 'sobre-card') }}>
-    {% if not page %}
+    {% if page %}
+      <header class="page-intro">
+        <h1 class="page-intro__title">{{ label }}</h1>
+      </header>
+    {% else %}
       <header>
         <h2{{ title_attributes }}>
           <a href="{{ url }}" rel="bookmark">{{ label }}</a>

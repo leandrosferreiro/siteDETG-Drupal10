@@ -1,0 +1,72 @@
+{#
+/**
+ * @file
+ * Layout da página Contato (campos em detg.*).
+ */
+#}
+<article{{ attributes.addClass('info-page', 'info-page--contato') }}>
+  <header class="page-intro">
+    <nav class="page-breadcrumb" aria-label="{{ 'Breadcrumb'|t }}">
+      <ol>
+        <li><a href="{{ path('<front>') }}">{{ 'Início'|t }}</a></li>
+        <li><span>{{ detg.title|default('Contato'|t) }}</span></li>
+      </ol>
+    </nav>
+    <h1 class="page-intro__title">{{ detg.title|default('Contato'|t) }}</h1>
+    {% if detg.lead %}
+      <p class="page-intro__lead">{{ detg.lead|nl2br }}</p>
+    {% endif %}
+  </header>
+
+  <div class="contato-grid">
+    <div class="contato-info">
+      {% if detg.endereco %}
+        <section class="info-card">
+          <h2 class="info-card__title">{{ 'Endereço'|t }}</h2>
+          <p class="info-card__text">{{ detg.endereco|nl2br }}</p>
+        </section>
+      {% endif %}
+
+      {% if detg.telefone %}
+        <section class="info-card">
+          <h2 class="info-card__title">{{ 'Telefone'|t }}</h2>
+          <p class="info-card__text">
+            {% if detg.tel_href %}
+              <a href="{{ detg.tel_href }}">{{ detg.telefone }}</a>
+            {% else %}
+              {{ detg.telefone }}
+            {% endif %}
+          </p>
+        </section>
+      {% endif %}
+
+      {% if detg.email %}
+        <section class="info-card">
+          <h2 class="info-card__title">{{ 'E-mail'|t }}</h2>
+          <p class="info-card__text">
+            <a href="mailto:{{ detg.email }}">{{ detg.email }}</a>
+          </p>
+        </section>
+      {% endif %}
+
+      {% if detg.horario %}
+        <section class="info-card">
+          <h2 class="info-card__title">{{ 'Horário de atendimento'|t }}</h2>
+          <p class="info-card__text">{{ detg.horario|nl2br }}</p>
+        </section>
+      {% endif %}
+    </div>
+
+    <section class="info-card contato-form-card">
+      <h2 class="info-card__title">{{ 'Envie sua mensagem'|t }}</h2>
+      {% if detg_contact_form %}
+        {{ detg_contact_form }}
+      {% elseif detg.email %}
+        <p class="info-card__text">
+          {{ 'Envie um e-mail para'|t }}
+          <a href="mailto:{{ detg.email }}">{{ detg.email }}</a>.
+        </p>
+      {% endif %}
+    </section>
+  </div>
+</article>

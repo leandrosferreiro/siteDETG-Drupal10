@@ -1,23 +1,47 @@
 {#
 /**
  * @file
- * Teaser de Docente — card horizontal no estilo home.html.
+ * Teaser de Docente — card no estilo html_DETG/docentes.html.
  */
 #}
 <article{{ attributes.addClass('docente-card-wrap') }}>
-  <a href="{{ url }}" class="docente-card" rel="bookmark">
-    {% if detg.has_image %}
-      <div class="docente-avatar docente-avatar--photo">
-        {{ content.field_imagem }}
-      </div>
-    {% else %}
-      <div class="docente-avatar" aria-hidden="true">{{ detg.initials }}</div>
-    {% endif %}
-    <div class="docente-info">
-      <h4 class="docente-name">{{ detg.name }}</h4>
-      {% if detg.role %}
-        <p class="docente-role">{{ detg.role }}</p>
+  <div class="docente-card">
+    <a href="{{ url }}" class="docente-card__main" rel="bookmark">
+      {% if detg.has_image %}
+        <div class="docente-avatar docente-avatar--photo">
+          {{ content.field_imagem }}
+        </div>
+      {% else %}
+        <div class="docente-avatar" aria-hidden="true">{{ detg.initials }}</div>
       {% endif %}
-    </div>
-  </a>
+      <div class="docente-info">
+        <h3 class="docente-name">{{ detg.name }}</h3>
+        {% if detg.role %}
+          <p class="docente-role">{{ detg.role }}</p>
+        {% endif %}
+      </div>
+    </a>
+
+    {% if detg.tags %}
+      <div class="docente-card__tags">
+        {% for tag in detg.tags %}
+          <span class="docente-tag{% if loop.first %} docente-tag--accent{% endif %}">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if detg.email or detg.has_social_links %}
+      <div class="docente-card__links">
+        {% for link in detg.social_links %}
+          {% if link.id == 'lattes' %}
+            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ 'Lattes'|t }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if detg.email %}
+          {% if detg.has_social_links %}<span class="docente-card__sep" aria-hidden="true">|</span>{% endif %}
+          <a href="mailto:{{ detg.email }}">{{ 'E-mail'|t }}</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
 </article>

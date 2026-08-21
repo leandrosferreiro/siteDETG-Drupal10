@@ -1,5 +1,5 @@
 global-styling:
-  version: 1.x
+  version: 2.10
   css:
     theme:
       css/style.css: {}
@@ -7,9 +7,9 @@ global-styling:
     - core/normalize
 
 global-scripts:
-  version: 1.x
+  version: 2.2
   js:
     js/detg.js: {}
   dependencies:
     - core/drupal
-    - core/jquery
+    - core/once

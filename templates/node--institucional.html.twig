@@ -1,0 +1,15 @@
+{#
+/**
+ * @file
+ * Página Institucional — conteúdo vindo dos campos do Drupal.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-institucional',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+{% set attributes = attributes.addClass(classes) %}
+{% include '@detg/partials/institucional.html.twig' %}

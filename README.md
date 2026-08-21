@@ -8,23 +8,21 @@ Tema oficial do **Departamento de Engenharia de Transportes e Geodésia (DETG)**
 
 ```
 detg/
-├── detg.info.yml          # Metadados do tema (nome, regiões, bibliotecas)
-├── detg.libraries.yml     # Definição de CSS e JS
-├── detg.breakpoints.yml   # Breakpoints responsivos
-├── config/
-│   └── install/
-│       └── detg.settings.yml
-├── css/
-│   └── style.css          # Todos os estilos do tema
-├── js/
-│   └── detg.js            # Menu mobile, busca, smooth scroll
+├── detg.info.yml
+├── detg.libraries.yml
+├── detg.breakpoints.yml
+├── logo.png               # Logo padrão do tema (Drupal)
+├── config/install/
+├── css/style.css
+├── js/detg.js
+├── images/logo-mark.png   # Emblema no cabeçalho e rodapé
+├── scripts/setup_info_pages.php
 └── templates/
-    ├── html.html.twig      # Wrapper HTML completo
-    ├── page.html.twig      # Layout da página (header, nav, grid, footer)
-    ├── node.html.twig      # Cards de notícia (teaser) e página completa
-    ├── menu.html.twig      # Renderização do menu de navegação
-    ├── block.html.twig     # Blocos nas sidebars
-    └── field.html.twig     # Campos de conteúdo
+    ├── page.html.twig
+    ├── node--institucional.html.twig
+    ├── node--contato.html.twig
+    ├── node--docente.html.twig
+    └── ...
 ```
 
 ---
@@ -120,6 +118,23 @@ Para o card de notícia (`node--view-mode-teaser`) funcionar corretamente, confi
 
 ---
 
+## Páginas Institucional e Contato
+
+O conteúdo dessas páginas vem de tipos de conteúdo Drupal (não está mais fixo no Twig).
+
+No site Drupal, depois de ativar o tema:
+
+```bash
+ddev exec vendor/bin/drush php:script web/themes/custom/detg/scripts/setup_info_pages.php
+ddev drush cr
+```
+
+Isso cria os tipos **Institucional** e **Contato**, os campos, o formulário de contato (`detg@ufba.br`) e preenche os nós `/institucional` e `/contato`.
+
+Para editar: **Conteúdo** → Institucional ou Contato (ou `/node/15/edit` e `/node/16/edit` no site atual).
+
+---
+
 ## Sistema de empréstimo de equipamentos
 
 Módulo **DETG Lab Equipamentos** (`web/modules/custom/detg_lab_equip` no site Drupal):
@@ -142,5 +157,5 @@ Em resumo: você pode usar, estudar, modificar e redistribuir o código, desde q
 
 ## Créditos
 
-Desenvolvido para o Departamento de Engenharia de Transportes e Geosédia da Universidade Federal da Bahia. 
+Desenvolvido para o Departamento de Engenharia de Transportes e Geodésia da Universidade Federal da Bahia. 
 Sistema de empréstimos de equipamentos inspirado no [VaiVem](https://github.com/willemarcel/vaivem).

@@ -1,15 +1,15 @@
 {#
 /**
  * @file
- * Bloco "Sobre o DETG" — seção institucional no estilo home.html.
+ * Bloco "Sobre o DETG" — seção institucional no estilo html_DETG.
  */
 #}
 <section id="institucional"{{ attributes.addClass('sobre-card', 'detg-section', 'detg-section--institucional') }}>
-  <div class="section-title-container">
-    <h2 class="section-title">{{ label|default('Sobre o DETG'|t) }}</h2>
-    <div class="section-line"></div>
-  </div>
+  <h2 class="section-heading__title">
+    {{ label|default('Sobre o DETG'|t) }}
+  </h2>
   <div{{ content_attributes.addClass('prose-detg') }}>
     {{ content }}
   </div>
+  <a href="/institucional" class="section-heading__more">{{ 'Saiba mais'|t }} →</a>
 </section>

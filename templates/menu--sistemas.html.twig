@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Menu Sistemas — links com nome + descrição (coluna esquerda).
+ * Menu Sistemas — links com ícone + nome + descrição (coluna esquerda).
  *
  * Cadastre no admin: título = nome (SIGAA), descrição = subtítulo
  * (Sistema Acadêmico). Variável `description` vem do preprocess do tema.
@@ -18,6 +18,16 @@
         {% set url_str = item.url.toString %}
         {% set is_external = item.url.isExternal %}
         {% set desc = item.description|default('')|trim %}
+        {% set title_l = item.title|render|striptags|trim|lower %}
+        {% set icon_mod = 'default' %}
+        {% set icon_letter = item.title|render|striptags|trim|slice(0, 1)|upper %}
+        {% if 'moodle' in title_l or 'ava' in title_l %}
+          {% set icon_mod = 'moodle' %}
+        {% elseif 'sigaa' in title_l %}
+          {% set icon_mod = 'sigaa' %}
+        {% elseif 'reserva' in title_l or 'equip' in title_l %}
+          {% set icon_mod = 'reserva' %}
+        {% endif %}
         {%
           set item_classes = [
             'sistemas-list__item',
@@ -33,12 +43,15 @@
             class="sistema-link{% if item.in_active_trail %} is-active{% endif %}"
             {% if open_blank %} target="_blank" rel="noopener noreferrer"{% endif %}
           >
-            {% if desc %}
-              <span class="sistema-link-name">{{ item.title }}</span>
-              <span class="sistema-link-desc">{{ desc }}</span>
-            {% else %}
-              <span class="sistema-link-name sistema-link-name--plain">{{ item.title }}</span>
-            {% endif %}
+            <span class="sistema-icon sistema-icon--{{ icon_mod }}" aria-hidden="true">{{ icon_letter }}</span>
+            <span class="sistema-link-text">
+              {% if desc %}
+                <span class="sistema-link-name">{{ item.title }}</span>
+                <span class="sistema-link-desc">{{ desc }}</span>
+              {% else %}
+                <span class="sistema-link-name sistema-link-name--plain">{{ item.title }}</span>
+              {% endif %}
+            </span>
           </a>
           {% if item.below %}
             {{ menus.menu_links(item.below, create_attribute(), menu_level + 1) }}

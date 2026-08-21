@@ -17,9 +17,11 @@
 <nav{{ attributes.addClass(classes) }} aria-label="{{ 'Sistemas'|t }}">
   {% if label %}
     <h3{{ title_attributes.addClass('widget-title') }}>
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-      </svg>
+      <span class="widget-title__icon widget-title__icon--blue" aria-hidden="true">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+        </svg>
+      </span>
       {{ label }}
     </h3>
   {% endif %}

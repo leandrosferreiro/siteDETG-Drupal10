@@ -17,20 +17,22 @@
 {% set is_block = display_id starts with 'block' %}
 <div{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
-  <div class="{{ is_block ? 'news-header' : 'section-title-container' }}">
-    <div class="{{ is_block ? 'news-title-block' : '' }}">
-      <h2 class="section-title">{{ title|default(is_block ? 'Últimas Notícias'|t : 'Notícias'|t) }}</h2>
-      <div class="section-line{{ is_block ? ' mb-0' : '' }}"></div>
-    </div>
-    {% if is_block %}
-      <a href="{{ path('view.noticias.page_1') }}" class="news-ver-todas">
-        {{ 'Ver todas as notícias'|t }}
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-        </svg>
+  {% if is_block %}
+    <div class="section-heading news-header">
+      <h2 class="section-heading__title">
+        <span class="section-heading__bar" aria-hidden="true"></span>
+        {{ title|default('Últimas Notícias'|t) }}
+      </h2>
+      <a href="{{ path('view.noticias.page_1') }}" class="section-heading__more">
+        {{ 'Ver todas'|t }} →
       </a>
-    {% endif %}
-  </div>
+    </div>
+  {% else %}
+    <div class="page-intro">
+      <h1 class="page-intro__title">{{ title|default('Notícias'|t) }}</h1>
+      <p class="page-intro__lead">{{ 'Acompanhe as últimas notícias do DETG.'|t }}</p>
+    </div>
+  {% endif %}
   {{ title_suffix }}
 
   {% if header %}

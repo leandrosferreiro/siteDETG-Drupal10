@@ -1,0 +1,15 @@
+{#
+/**
+ * @file
+ * Página Contato — conteúdo vindo dos campos do Drupal.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-contato',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+{% set attributes = attributes.addClass(classes) %}
+{% include '@detg/partials/contato.html.twig' %}

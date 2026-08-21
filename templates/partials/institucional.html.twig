@@ -1,0 +1,157 @@
+{#
+/**
+ * @file
+ * Layout da página Institucional (campos em detg.*).
+ */
+#}
+<article{{ attributes.addClass('info-page', 'info-page--institucional') }}>
+  <header class="page-intro">
+    <nav class="page-breadcrumb" aria-label="{{ 'Breadcrumb'|t }}">
+      <ol>
+        <li><a href="{{ path('<front>') }}">{{ 'Início'|t }}</a></li>
+        <li><span>{{ detg.title|default('Institucional'|t) }}</span></li>
+      </ol>
+    </nav>
+    <h1 class="page-intro__title">{{ detg.title|default('Institucional'|t) }}</h1>
+    {% if detg.lead %}
+      <p class="page-intro__lead">{{ detg.lead|nl2br }}</p>
+    {% endif %}
+  </header>
+
+  {% if detg.banner_title or detg.banner_text %}
+    <section class="info-banner" aria-label="{{ detg.banner_title|default('DETG'|t) }}">
+      <div class="info-banner__copy">
+        {% if detg.banner_title %}
+          <h2 class="info-banner__title">{{ detg.banner_title }}</h2>
+        {% endif %}
+        {% if detg.banner_text %}
+          <p class="info-banner__text">{{ detg.banner_text }}</p>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if detg.resumo_historia or detg.resumo_missao or detg.resumo_estrutura %}
+    <div class="info-cards">
+      {% if detg.resumo_historia %}
+        <article class="info-card">
+          <div class="info-card__icon info-card__icon--blue" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21s7-4.4 7-10a7 7 0 10-14 0c0 5.6 7 10 7 10z"/><circle cx="12" cy="11" r="2.2" stroke-width="1.8"/></svg>
+          </div>
+          <h2 class="info-card__title">{{ 'História do DETG'|t }}</h2>
+          <p class="info-card__text">{{ detg.resumo_historia }}</p>
+          {% if detg.historia %}
+            <a href="#historia" class="info-card__link">{{ 'Saiba mais'|t }} →</a>
+          {% endif %}
+        </article>
+      {% endif %}
+
+      {% if detg.resumo_missao %}
+        <article class="info-card">
+          <div class="info-card__icon info-card__icon--orange" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-width="1.8"/><circle cx="12" cy="12" r="2" stroke-width="1.8"/><path stroke-linecap="round" stroke-width="1.8" d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg>
+          </div>
+          <h2 class="info-card__title">{{ 'Missão e Visão'|t }}</h2>
+          <p class="info-card__text"><strong>{{ 'Missão:'|t }}</strong> {{ detg.resumo_missao }}</p>
+          {% if detg.missao or detg.visao or detg.valores %}
+            <a href="#missao" class="info-card__link">{{ 'Conheça'|t }} →</a>
+          {% endif %}
+        </article>
+      {% endif %}
+
+      {% if detg.resumo_estrutura %}
+        <article class="info-card">
+          <div class="info-card__icon info-card__icon--emerald" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 19V5h6v14H4zM14 19v-8h6v8h-6zM9 9h1M9 13h1M19 15h1"/></svg>
+          </div>
+          <h2 class="info-card__title">{{ 'Estrutura Organizacional'|t }}</h2>
+          <p class="info-card__text">{{ detg.resumo_estrutura }}</p>
+          <a href="#estrutura" class="info-card__link">{{ 'Ver estrutura'|t }} →</a>
+        </article>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if detg.historia %}
+    <section id="historia" class="info-section">
+      <h2 class="section-heading__title">
+        <span class="section-heading__bar" aria-hidden="true"></span>
+        {{ 'História do DETG'|t }}
+      </h2>
+      <div class="prose-detg">
+        {{ detg.historia }}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if detg.missao or detg.visao or detg.valores %}
+    <section id="missao" class="info-section">
+      <h2 class="section-heading__title">
+        <span class="section-heading__bar" aria-hidden="true"></span>
+        {{ 'Missão, visão e valores'|t }}
+      </h2>
+      <div class="info-values">
+        {% if detg.missao %}
+          <div class="info-values__item">
+            <h3>{{ 'Missão'|t }}</h3>
+            <p>{{ detg.missao|nl2br }}</p>
+          </div>
+        {% endif %}
+        {% if detg.visao %}
+          <div class="info-values__item">
+            <h3>{{ 'Visão'|t }}</h3>
+            <p>{{ detg.visao|nl2br }}</p>
+          </div>
+        {% endif %}
+        {% if detg.valores %}
+          <div class="info-values__item">
+            <h3>{{ 'Valores'|t }}</h3>
+            <p>{{ detg.valores|nl2br }}</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if detg.estrutura_intro or detg.estrutura_itens %}
+    <section id="estrutura" class="info-section">
+      <h2 class="section-heading__title">
+        <span class="section-heading__bar" aria-hidden="true"></span>
+        {{ 'Estrutura organizacional'|t }}
+      </h2>
+      {% if detg.estrutura_intro %}
+        <div class="prose-detg">
+          <p>{{ detg.estrutura_intro|nl2br }}</p>
+        </div>
+      {% endif %}
+      {% if detg.estrutura_itens %}
+        <ul class="info-structure">
+          {% for item in detg.estrutura_itens %}
+            <li>
+              {% if item.name %}<strong>{{ item.name }}</strong>{% endif %}
+              {% if item.desc %}<span>{{ item.desc }}</span>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      <p class="info-section__more">
+        <a href="/docentes" class="info-card__link">{{ 'Conheça o corpo docente'|t }} →</a>
+        <a href="/laboratorios" class="info-card__link">{{ 'Ver laboratórios'|t }} →</a>
+      </p>
+    </section>
+  {% endif %}
+
+  {% if detg.stats %}
+    <section class="info-stats" aria-label="{{ 'DETG em números'|t }}">
+      <h2 class="info-stats__title">{{ 'DETG em números'|t }}</h2>
+      <div class="info-stats__grid">
+        {% for stat in detg.stats %}
+          <div>
+            <div class="info-stats__value info-stats__value--{{ stat.class }}">{{ stat.value }}</div>
+            <div class="info-stats__label">{{ stat.label }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</article>

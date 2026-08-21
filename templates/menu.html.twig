@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Menu DETG — item Início com ícone SVG (não coloque SVG no admin do menu).
+ * Menu DETG — navegação principal no estilo dos mockups html_DETG.
  #}
 {% import _self as menus %}
 {{ menus.menu_links(items, attributes, 0) }}
@@ -27,21 +27,8 @@
         ]
       %}
       <li{{ item.attributes.addClass(item_classes) }}>
-        <a href="{{ url_str }}" class="nav-item{% if item.in_active_trail and not is_home %} is-active{% endif %}{% if is_home %} nav-item--home{% endif %}"{% if is_home %} title="{{ 'Início'|t }}"{% endif %}>
-          {% if is_home %}
-            {# Ícone SVG do Início — definido no tema, não no admin #}
-            <svg class="nav-home-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 21l4-9 4 9" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 12h4" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.5 12V7.5a1.5 1.5 0 013 0V12" />
-              <circle cx="12" cy="7.5" r="2.2" stroke-width="1.5" fill="rgba(255,255,255,0.1)" />
-              <circle cx="12" cy="7.5" r="0.5" fill="currentColor" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 4h4" />
-            </svg>
-            <span class="visually-hidden">{{ item.title }}</span>
-          {% else %}
-            {{ item.title }}
-          {% endif %}
+        <a href="{{ url_str }}" class="nav-item{% if item.in_active_trail %} is-active{% endif %}{% if is_home %} nav-item--home{% endif %}">
+          {{ item.title }}
         </a>
         {% if item.below %}
           {{ menus.menu_links(item.below, attributes, menu_level + 1) }}

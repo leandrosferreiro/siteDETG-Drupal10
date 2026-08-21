@@ -6,96 +6,98 @@
 #}
 
 {# ============================================================ #}
-{# BARRA DO GOVERNO FEDERAL #}
+{# BARRA DO GOVERNO FEDERAL (oficial) #}
 {# ============================================================ #}
 <div id="barra-brasil" style="background:#7f7f7f; height:20px; padding:0 0 0 10px; display:block; width:100%; z-index:9999;"></div>
 <script src="https://barra.brasil.gov.br/barra_2.0.js" type="text/javascript"></script>
 
 {# ============================================================ #}
-{# HEADER / TOPO — alinhado à DIREITA no desktop, centralizado no mobile #}
+{# CHROME: marca + menu + busca (acompanha o scroll) #}
 {# ============================================================ #}
-<header id="main-header" role="banner">
-  <div class="header-inner container-wide">
-    <div class="site-name-wrapper">
-      {% if page.header %}
+<div class="site-sticky-sentinel" aria-hidden="true"></div>
+<header id="main-header" class="site-chrome" role="banner">
+  <div class="site-chrome__inner">
+
+    <a class="site-brand" href="{{ path('<front>') }}" aria-label="{{ 'DETG — Departamento de Engenharia de Transportes e Geodésia'|t }}">
+      <span class="site-brand__mark" aria-hidden="true">
+        <img src="{{ detg_logo }}" alt="" width="52" height="52">
+      </span>
+      <span class="site-brand__text">
+        <span class="site-brand__name">DETG</span>
+        <span class="site-brand__desc">{{ 'Departamento de Engenharia de'|t }}<br>{{ 'Transportes e Geodésia'|t }}</span>
+        <span class="site-brand__org">{{ 'Universidade Federal da Bahia'|t }}</span>
+      </span>
+    </a>
+
+    {% if page.header %}
+      <div class="site-chrome__header-region">
         {{ page.header }}
-      {% else %}
-        <h1 class="site-name">
-          Departamento de Engenharia de<br>
-          <span class="gradient-text">Transportes</span>
-          <span class="connector-text"> e </span>
-          <span class="earth-text">Geodésia</span>
-        </h1>
-        <p class="site-slogan">Universidade Federal da Bahia - Escola Politécnica</p>
-      {% endif %}
+      </div>
+    {% endif %}
+
+    <button
+      id="mobile-menu-btn"
+      class="site-chrome__toggle"
+      type="button"
+      aria-controls="mobile-menu-content"
+      aria-expanded="false"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+      <span class="visually-hidden">{{ 'Abrir menu'|t }}</span>
+    </button>
+
+    <div id="mobile-menu-content" class="site-chrome__nav" role="navigation">
+      <nav id="main-nav" aria-label="{{ 'Main navigation'|t }}">
+        <ul class="nav-links">
+          {% for item in detg_nav %}
+            <li class="nav-menu-item{% if item.active %} nav-menu-item--active-trail{% endif %}">
+              <a href="{{ item.url }}" class="nav-item{% if item.active %} is-active{% endif %}">{{ item.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <div class="nav-search">
+        <div class="nav-search-inner">
+          <input type="text" id="search_menu" placeholder="{{ 'Buscar no DETG...'|t }}" aria-label="{{ 'Buscar no site'|t }}"/>
+          <span class="nav-search-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </span>
+        </div>
+      </div>
     </div>
+
   </div>
 </header>
 
 {# ============================================================ #}
-{# MENU PRINCIPAL #}
+{# HERO — somente na página inicial #}
 {# ============================================================ #}
-<nav id="main-nav" aria-label="{{ 'Main navigation'|t }}">
-  <div class="nav-wrapper">
-
-    {# Botão hambúrguer — visível só no mobile #}
-    <div class="nav-mobile-header">
-      <span class="nav-mobile-label">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
-        </svg>
-        {{ 'MENU'|t }}
-      </span>
-      <button id="mobile-menu-btn" aria-controls="mobile-menu-content" aria-expanded="false">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <span class="visually-hidden">{{ 'Toggle menu'|t }}</span>
-      </button>
-    </div>
-
-    {# Conteúdo do menu (links + busca) #}
-    <div id="mobile-menu-content" role="navigation">
-
-      {% if page.primary_menu %}
-        {{ page.primary_menu }}
-      {% else %}
-        {# Fallback: menu estático #}
-        <ul class="nav-links">
-          <li>
-            <a href="{{ path('<front>') }}" class="nav-item" title="{{ 'Início'|t }}">
-                            <svg class="w-6 h-6 text-white hover:text-blue-200 transition-transform hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 21l4-9 4 9" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 12h4" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.5 12V7.5a1.5 1.5 0 013 0V12" />
-                                <circle cx="12" cy="7.5" r="2.2" stroke-width="1.5" fill="rgba(255,255,255,0.1)" />
-                                <circle cx="12" cy="7.5" r="0.5" fill="currentColor" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 4h4" />
-                            </svg>
-            </a>
-          </li>
-          <li><a href="/institucional" class="nav-item">{{ 'Institucional'|t }}</a></li>
-          <li><a href="/docentes" class="nav-item">{{ 'Docentes'|t }}</a></li>
-          <li><a href="/laboratorios" class="nav-item">{{ 'Laboratórios'|t }}</a></li>
-          <li><a href="/noticias" class="nav-item">{{ 'Notícias'|t }}</a></li>
-        </ul>
-      {% endif %}
-
-      {# Barra de busca — SEMPRE presente, absoluta à direita no desktop #}
-      <div class="nav-search">
-        <div class="nav-search-inner">
-          <div class="nav-search-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </div>
-          <input type="text" id="search_menu" placeholder="{{ 'BUSCAR...'|t }}" aria-label="{{ 'Buscar no site'|t }}"/>
+{% if is_front %}
+  <section class="hero" aria-label="{{ 'Apresentação do DETG'|t }}">
+    <div class="hero__inner">
+      <div class="hero__copy">
+        <h1 class="hero__title">
+          {{ 'Departamento de Engenharia de'|t }}
+          <span class="hero__accent hero__accent--blue">{{ 'Transportes'|t }}</span>
+          {{ 'e'|t }}
+          <span class="hero__accent hero__accent--orange">{{ 'Geodésia'|t }}</span>
+        </h1>
+        <p class="hero__lead">
+          {{ 'Formação, pesquisa e inovação para sistemas de transporte eficientes, cidades inteligentes e territórios bem planejados.'|t }}
+        </p>
+        <div class="hero__actions">
+          <a href="/institucional" class="btn btn--primary">{{ 'Conheça o DETG'|t }} →</a>
+          <a href="/laboratorios" class="btn btn--ghost">{{ 'Laboratórios'|t }}</a>
         </div>
       </div>
-
-    </div>{# end #mobile-menu-content #}
-  </div>
-</nav>
+    </div>
+  </section>
+{% endif %}
 
 {# ============================================================ #}
 {# MAIN CONTENT
@@ -109,6 +111,12 @@
       {{ page.content }}
     </main>
   </div>
+{% elseif is_info_page %}
+  <div class="main-grid main-grid--wide" id="main-content">
+    <main class="main-content main-content--wide" id="content" role="main">
+      {{ page.content }}
+    </main>
+  </div>
 {% else %}
   <div class="main-grid" id="main-content">
 
@@ -119,34 +127,48 @@
       {% else %}
         <div class="widget-card">
           <h3 class="widget-title">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-            </svg>
+            <span class="widget-title__icon widget-title__icon--blue" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+              </svg>
+            </span>
             {{ 'Sistemas'|t }}
           </h3>
           <div>
-            <a href="https://sigaa.ufba.br/sigaa/public/home.jsf" class="sistema-link">
-              <span class="sistema-link-name">SIGAA</span>
-              <span class="sistema-link-desc">{{ 'Sistema Acadêmico'|t }}</span>
-            </a>
             <a href="https://ava.ufba.br/" class="sistema-link">
-              <span class="sistema-link-name">Moodle</span>
-              <span class="sistema-link-desc">{{ 'Ambiente Virtual'|t }}</span>
+              <span class="sistema-icon sistema-icon--moodle" aria-hidden="true">M</span>
+              <span class="sistema-link-text">
+                <span class="sistema-link-name">Moodle</span>
+                <span class="sistema-link-desc">{{ 'Ambiente Virtual de Aprendizagem'|t }}</span>
+              </span>
             </a>
-            <a href="#" class="sistema-link" style="border-top:1px solid #f9fafb;margin-top:.25rem;padding-top:.5rem;">
-              {{ 'Reserva de Equipamentos'|t }}
+            <a href="https://sigaa.ufba.br/sigaa/public/home.jsf" class="sistema-link">
+              <span class="sistema-icon sistema-icon--sigaa" aria-hidden="true">S</span>
+              <span class="sistema-link-text">
+                <span class="sistema-link-name">SIGAA</span>
+                <span class="sistema-link-desc">{{ 'Sistema Integrado de Gestão Acadêmica'|t }}</span>
+              </span>
             </a>
-            <a href="https://eng.ufba.br/reserva-de-laboratorio" class="sistema-link">{{ 'Reserva de Laboratórios'|t }}</a>
+            <a href="#" class="sistema-link">
+              <span class="sistema-icon sistema-icon--reserva" aria-hidden="true">R</span>
+              <span class="sistema-link-text">
+                <span class="sistema-link-name">{{ 'Reserva de Equipamentos'|t }}</span>
+                <span class="sistema-link-desc">{{ 'Agendamento de equipamentos e laboratórios'|t }}</span>
+              </span>
+            </a>
           </div>
         </div>
 
         <div class="widget-card">
           <h3 class="widget-title">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#6b7280">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
+            <span class="widget-title__icon widget-title__icon--emerald" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </span>
             {{ 'Secretaria'|t }}
           </h3>
+          <p class="secretaria-lead">{{ 'Atendimento presencial e remoto'|t }}</p>
           <ul class="secretaria-list">
             <li><a href="#"><span class="secretaria-dot"></span>{{ 'Documentos'|t }}</a></li>
             <li><a href="https://ufba.br/legislacao"><span class="secretaria-dot"></span>{{ 'Legislação'|t }}</a></li>
@@ -158,47 +180,54 @@
 
     {# --- CONTEÚDO CENTRAL --- #}
     <main class="main-content" id="content" role="main">
+      {% if not is_front and detg_breadcrumb %}
+        <nav class="page-breadcrumb" aria-label="{{ 'Breadcrumb'|t }}">
+          {{ detg_breadcrumb }}
+        </nav>
+      {% endif %}
       {{ page.content }}
     </main>
 
     {# --- COLUNA DIREITA (Calendário / Avisos) --- #}
     <aside class="sidebar-right" aria-label="{{ 'Calendário e Avisos'|t }}">
+      <div class="calendar-widget agenda-widget">
+        <div class="agenda-widget__header">
+          <h3 class="agenda-widget__title">{{ 'Agenda do DETG'|t }}</h3>
+          <a
+            class="agenda-widget__all"
+            href="https://calendar.google.com/calendar/u/0/r?cid=detg.ufba%40gmail.com"
+            target="_blank"
+            rel="noopener noreferrer">{{ 'Ver todas'|t }}</a>
+        </div>
+        {% if detg_agenda %}
+          <ul class="agenda-list">
+            {% for event in detg_agenda %}
+              <li class="agenda-item">
+                <div class="agenda-item__date">
+                  <div class="agenda-item__day">{{ event.day }}</div>
+                  <div class="agenda-item__month">{{ event.month }}</div>
+                </div>
+                <div class="agenda-item__body">
+                  <div class="agenda-item__title">{{ event.title }}</div>
+                  {% if event.meta %}
+                    <div class="agenda-item__meta">{{ event.meta }}</div>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="agenda-empty">{{ 'Nenhum evento agendado no momento.'|t }}</p>
+        {% endif %}
+      </div>
+
       {% if page.sidebar_second %}
         {{ page.sidebar_second }}
       {% else %}
-        <div class="calendar-widget">
-          <h3 class="widget-title">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            {{ 'Agenda do DETG'|t }}
-          </h3>
-          <div class="calendar-iframe-wrapper">
-            {# Agenda oficial DETG — detg.ufba@gmail.com #}
-            <iframe
-              src="https://calendar.google.com/calendar/embed?src=detg.ufba%40gmail.com&ctz=America%2FFortaleza"
-              title="{{ 'Agenda DETG UFBA'|t }}"
-              loading="lazy"
-              style="border:0">
-            </iframe>
-          </div>
-          <a
-            class="calendar-open-link"
-            href="https://calendar.google.com/calendar/u/0/r?cid=detg.ufba%40gmail.com"
-            target="_blank"
-            rel="noopener noreferrer">
-            {{ 'Abrir agenda no Google Calendar'|t }}
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-          </a>
-        </div>
-
-        {# Fallback só se a view/bloco de avisos não estiver na região #}
         <div class="avisos-widget">
           <h4 class="avisos-title">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
             </svg>
             {{ 'Avisos Importantes'|t }}
           </h4>
@@ -225,13 +254,21 @@
 <footer class="site-footer" role="contentinfo">
   <div class="footer-grid">
 
-    <div>
+    <div class="footer-brand-col">
       {% if page.footer_col1 %}
         {{ page.footer_col1 }}
       {% else %}
-        <h4 class="footer-col-title">DETG / UFBA</h4>
+        <div class="site-brand site-brand--footer">
+          <span class="site-brand__mark" aria-hidden="true">
+            <img src="{{ detg_logo }}" alt="" width="56" height="56">
+          </span>
+          <span class="site-brand__text">
+            <span class="site-brand__name">DETG</span>
+            <span class="site-brand__desc">{{ 'Departamento de Engenharia de Transportes e Geodésia'|t }}</span>
+          </span>
+        </div>
         <p class="footer-about-text">
-          {{ 'Departamento de Engenharia de Transportes e Geodésia da Escola Politécnica da UFBA.'|t }}
+          {{ 'Ciência, tecnologia e inovação a serviço da sociedade e do território.'|t }}
         </p>
         <div class="footer-social">
           <a href="https://github.com/leandrosferreiro/siteDETG-Drupal10"
@@ -252,9 +289,9 @@
       {% else %}
         <h4 class="footer-col-title">{{ 'Acesso Rápido'|t }}</h4>
         <ul class="footer-links">
-          <li><a href="#">{{ 'Portal UFBA'|t }}</a></li>
-          <li><a href="#">{{ 'Escola Politécnica'|t }}</a></li>
-          <li><a href="#">{{ 'Processos Seletivos'|t }}</a></li>
+          <li><a href="/docentes">{{ 'Docentes'|t }}</a></li>
+          <li><a href="/disciplinas">{{ 'Disciplinas'|t }}</a></li>
+          <li><a href="/laboratorios">{{ 'Laboratórios'|t }}</a></li>
         </ul>
       {% endif %}
     </div>
@@ -275,7 +312,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
             </svg>
-            <span>(71) 3283-9821</span>
+            <span>71 3283-9821</span>
           </li>
         </ul>
       {% endif %}
@@ -287,9 +324,9 @@
       {% else %}
         <h4 class="footer-col-title">{{ 'Endereço'|t }}</h4>
         <p class="footer-address">
-          {{ 'Rua Prof. Aristides Novis, 2'|t }}<br>
-          {{ 'Federação'|t }}<br>
-          {{ 'Salvador - BA'|t }}<br>
+          {{ 'Escola Politécnica – UFBA'|t }}<br>
+          {{ 'Rua Aristides Novis, 2 – 6º andar'|t }}<br>
+          {{ 'Federação, Salvador – BA'|t }}<br>
           CEP: 40210-630
         </p>
       {% endif %}
@@ -298,6 +335,6 @@
   </div>
 
   <div class="footer-bottom">
-    <p class="footer-copy">&copy; {{ "now"|date("Y") }} DETG.</p>
+    <p class="footer-copy">&copy; {{ "now"|date("Y") }} {{ 'Universidade Federal da Bahia. Todos os direitos reservados.'|t }}</p>
   </div>
 </footer>

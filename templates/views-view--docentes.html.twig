@@ -14,15 +14,21 @@
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
+{% set is_block = display_id starts with 'block' %}
 <section id="docentes"{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
-  <div class="section-title-container">
-    <h2 class="section-title">{{ title|default('Corpo Docente'|t) }}</h2>
-    <div class="section-line"></div>
-    {% if display_id starts with 'block' %}
-      <a href="{{ path('view.docentes.page_1') }}" class="section-more-link">{{ 'Ver todos os docentes'|t }}</a>
-    {% endif %}
-  </div>
+  {% if is_block %}
+    <div class="section-heading section-heading--center">
+      <h2 class="section-heading__title">{{ title|default('Corpo Docente'|t) }}</h2>
+      <a href="{{ path('view.docentes.page_1') }}" class="section-heading__more">{{ 'Ver todos'|t }} →</a>
+    </div>
+    <p class="section-heading__lead">{{ 'Conheça nossos professores e suas áreas de atuação.'|t }}</p>
+  {% else %}
+    <div class="page-intro">
+      <h1 class="page-intro__title">{{ title|default('Corpo Docente'|t) }}</h1>
+      <p class="page-intro__lead">{{ 'Conheça os professores do DETG e suas áreas de atuação.'|t }}</p>
+    </div>
+  {% endif %}
   {{ title_suffix }}
 
   {% if header %}

@@ -14,12 +14,19 @@
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
+{% set is_page = display_id starts with 'page' %}
 <div{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if title %}
-    <header class="detg-view__header">
-      <h1 class="detg-view__title">{{ title }}</h1>
-      <div class="detg-view__line"></div>
+    <header class="{{ is_page ? 'page-intro' : 'section-heading' }}">
+      {% if is_page %}
+        <h1 class="page-intro__title">{{ title }}</h1>
+      {% else %}
+        <h2 class="section-heading__title">
+          <span class="section-heading__bar" aria-hidden="true"></span>
+          {{ title }}
+        </h2>
+      {% endif %}
     </header>
   {% endif %}
   {{ title_suffix }}

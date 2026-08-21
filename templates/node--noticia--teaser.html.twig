@@ -1,16 +1,12 @@
 {#
 /**
  * @file
- * Teaser de Notícia — card com badge de data no estilo home.html.
+ * Teaser de Notícia — card com data + categoria no estilo html_DETG.
  */
 #}
 <article{{ attributes.addClass('news-card-wrap') }}>
   <a href="{{ url }}" class="news-card news-card--{{ detg.categoria_class }}" rel="bookmark">
     <div class="news-card-image">
-      <div class="news-date-badge">
-        <span class="news-date-month">{{ detg.month }}</span>
-        <span class="news-date-day news-date-day--{{ detg.categoria_class }}">{{ detg.day }}</span>
-      </div>
       {% if detg.has_image %}
         {{ content.field_imagem }}
       {% else %}
@@ -22,11 +18,15 @@
       {% endif %}
     </div>
     <div class="news-card-body">
-      {% if detg.categoria %}
-        <span class="news-category news-category--{{ detg.categoria_class }}">{{ detg.categoria }}</span>
-      {% endif %}
+      <div class="news-card-meta">
+        {% if detg.day and detg.month %}
+          <span class="news-date-inline">{{ detg.day }} {{ detg.month|upper }}</span>
+        {% endif %}
+        {% if detg.categoria %}
+          <span class="news-category news-category--{{ detg.categoria_class }}">{{ detg.categoria }}</span>
+        {% endif %}
+      </div>
       <h3 class="news-card-title">{{ label }}</h3>
-      <span class="news-card-more">{{ 'Ler Mais'|t }} &rarr;</span>
     </div>
   </a>
 </article>

@@ -6,6 +6,65 @@
  */
 
 /**
+ * Identifica as páginas Institucional e Contato pelo tipo de conteúdo, alias ou caminho.
+ */
+function detg_info_page_id(): string {
+  $node = detg_current_node();
+  if ($node) {
+    if ($node->bundle() === 'institucional') {
+      return 'institucional';
+    }
+    if ($node->bundle() === 'contato') {
+      return 'contato';
+    }
+  }
+
+  $candidates = [];
+
+  try {
+    $internal = \Drupal::service('path.current')->getPath();
+    $candidates[] = $internal;
+    $candidates[] = \Drupal::service('path_alias.manager')->getAliasByPath($internal);
+  }
+  catch (\Throwable $e) {
+    // Sem serviço de alias.
+  }
+
+  $request = \Drupal::request();
+  if ($request) {
+    $candidates[] = $request->getPathInfo();
+    $candidates[] = $request->getRequestUri();
+  }
+
+  foreach ($candidates as $raw) {
+    $path = mb_strtolower(trim((string) $raw));
+    $path = strtok($path, '?') ?: $path;
+    $path = trim($path, '/');
+    if ($path === 'institucional' || str_ends_with($path, '/institucional')) {
+      return 'institucional';
+    }
+    if (in_array($path, ['contato', 'contact', 'fale-conosco'], TRUE)
+      || str_ends_with($path, '/contato')
+      || str_ends_with($path, '/contact')) {
+      return 'contato';
+    }
+  }
+
+  $node = detg_current_node();
+  if ($node) {
+    $title = detg_normalize_nav_key($node->getTitle());
+    if ($title === 'institucional') {
+      return 'institucional';
+    }
+    if (in_array($title, ['contato', 'contact', 'fale conosco'], TRUE)) {
+      return 'contato';
+    }
+  }
+
+  return '';
+}
+
+/**
  * Returns the current node entity, if any.
  */
 function detg_current_node(): ?\Drupal\node\NodeInterface {
@@ -31,6 +90,22 @@ function detg_preprocess_html(array &$variables) {
     $variables['attributes']['class'][] = 'page-node';
     $variables['attributes']['class'][] = 'page-node-type-' . $node->bundle();
   }
+
+  $info_page = detg_info_page_id();
+  if ($info_page === 'institucional') {
+    $variables['attributes']['class'][] = 'path-institucional';
+    $variables['attributes']['class'][] = 'page-detg-info';
+    $variables['head_title']['title'] = $node ? $node->getTitle() : t('Institucional');
+  }
+  elseif ($info_page === 'contato') {
+    $variables['attributes']['class'][] = 'path-contato';
+    $variables['attributes']['class'][] = 'page-detg-info';
+    $variables['head_title']['title'] = $node ? $node->getTitle() : t('Contato');
+  }
+
+  // A agenda vem de um feed externo: a página anônima não pode ficar
+  // cacheada para sempre, senão eventos novos nunca aparecem.
+  detg_attach_agenda_cache($variables);
 }
 
 /**
@@ -47,12 +122,20 @@ function detg_theme_suggestions_page_alter(array &$suggestions, array $variables
   if ($route && str_starts_with((string) $route, 'detg_lab_equip.')) {
     $suggestions[] = 'page__lab_equip';
   }
+
+  $info_page = detg_info_page_id();
+  if ($info_page !== '') {
+    $suggestions[] = 'page__' . $info_page;
+  }
 }
 
 /**
  * Implements hook_preprocess_page().
  */
 function detg_preprocess_page(array &$variables) {
+  $theme_path = \Drupal::service('extension.list.theme')->getPath('detg');
+  $variables['detg_logo'] = base_path() . $theme_path . '/images/logo-mark.png';
+
   $node = detg_current_node();
   $variables['detg_node'] = $node;
   $is_pessoa = $node && in_array($node->bundle(), ['docente', 'pessoa'], TRUE);
@@ -60,6 +143,36 @@ function detg_preprocess_page(array &$variables) {
   // Perfil de pessoa/docente: layout full-width, sem colunas da home.
   if ($is_pessoa) {
     $variables['attributes']['class'][] = 'page-layout--docente';
+  }
+
+  // Breadcrumb nas páginas internas (o tema não tem região própria).
+  $variables['detg_breadcrumb'] = [];
+  if (!\Drupal::service('path.matcher')->isFrontPage()) {
+    try {
+      $breadcrumb = \Drupal::service('breadcrumb')->build(\Drupal::routeMatch());
+      $links = $breadcrumb->getLinks();
+      if (count($links) > 1) {
+        $variables['detg_breadcrumb'] = $breadcrumb->toRenderable();
+      }
+    }
+    catch (\Throwable $e) {
+      $variables['detg_breadcrumb'] = [];
+    }
+  }
+
+  $variables['detg_nav'] = detg_main_nav_items();
+
+  $info_page = detg_info_page_id();
+  $variables['is_institucional_page'] = $info_page === 'institucional';
+  $variables['is_contato_page'] = $info_page === 'contato';
+  $variables['is_info_page'] = $info_page !== '';
+
+  // Agenda só no layout de 3 colunas. Internal Page Cache ignora max-age,
+  // então sem o kill switch o HTML anônimo ficaria para sempre sem eventos novos.
+  $variables['detg_agenda'] = [];
+  if (empty($variables['is_docente_page']) && empty($variables['is_info_page'])) {
+    $variables['detg_agenda'] = detg_agenda_events(5);
+    \Drupal::service('page_cache_kill_switch')->trigger();
   }
 }
 
@@ -142,9 +255,20 @@ function detg_preprocess_node(array &$variables) {
     'coord' => '',
     'categoria' => '',
     'categoria_class' => 'default',
-    'day' => '',
-    'month' => '',
+    'title' => $node->getTitle(),
   ];
+
+  if ($node->bundle() === 'institucional') {
+    detg_fill_institucional($variables);
+    return;
+  }
+  if ($node->bundle() === 'contato') {
+    detg_fill_contato($variables);
+    return;
+  }
+
+  $variables['detg']['day'] = '';
+  $variables['detg']['month'] = '';
 
   $bundle = $node->bundle();
 
@@ -184,6 +308,38 @@ function detg_preprocess_node(array &$variables) {
     // Links sociais com ícone (Lattes, LinkedIn, Website, YouTube, GitHub).
     $variables['detg']['social_links'] = detg_pessoa_social_links($node);
     $variables['detg']['has_social_links'] = !empty($variables['detg']['social_links']);
+
+    // E-mail para o card de teaser (evita âncora aninhada no template).
+    $variables['detg']['email'] = '';
+    if ($node->hasField('field_e_mail') && !$node->get('field_e_mail')->isEmpty()) {
+      $raw_email = trim(strip_tags((string) $node->get('field_e_mail')->value));
+      if ($raw_email !== '' && str_contains($raw_email, '@')) {
+        $variables['detg']['email'] = $raw_email;
+      }
+    }
+
+    // Tags curtas (linha de pesquisa) nos cards de docente.
+    $variables['detg']['tags'] = [];
+    if ($node->hasField('field_linha_de_pesquisa') && !$node->get('field_linha_de_pesquisa')->isEmpty()) {
+      foreach ($node->get('field_linha_de_pesquisa') as $item) {
+        $tag = trim(strip_tags((string) ($item->value ?? '')));
+        if ($tag === '') {
+          continue;
+        }
+        // Primeira linha / primeira vírgula — evita parágrafo inteiro no chip.
+        $tag = preg_split('/[\r\n,;]+/u', $tag)[0] ?? $tag;
+        $tag = trim($tag);
+        if (mb_strlen($tag) > 32) {
+          $tag = rtrim(mb_substr($tag, 0, 32)) . '…';
+        }
+        if ($tag !== '') {
+          $variables['detg']['tags'][] = $tag;
+        }
+        if (count($variables['detg']['tags']) >= 2) {
+          break;
+        }
+      }
+    }
 
     // Flags de campos (evita |render duplo no Twig).
     $field_flags = [
@@ -292,6 +448,24 @@ function detg_preprocess_node(array &$variables) {
     // Nome amigável: título do node (nome completo do lab).
     $variables['detg']['name'] = $node->getTitle();
 
+    $variables['detg']['summary'] = '';
+    if ($node->hasField('body') && !$node->get('body')->isEmpty()) {
+      $item = $node->get('body')->first();
+      $raw = '';
+      if ($item && !empty($item->summary)) {
+        $raw = (string) $item->summary;
+      }
+      elseif ($item && isset($item->value)) {
+        $raw = (string) $item->value;
+      }
+      $raw = trim(preg_replace('/\s+/u', ' ', strip_tags($raw)) ?? '');
+      if ($raw !== '') {
+        $variables['detg']['summary'] = mb_strlen($raw) > 140
+          ? rtrim(mb_substr($raw, 0, 140)) . '…'
+          : $raw;
+      }
+    }
+
     if ($variables['view_mode'] === 'teaser') {
       foreach (['field_sigla', 'field_coordenacao', 'field_nome', 'body'] as $field) {
         unset($variables['content'][$field]);
@@ -342,20 +516,26 @@ function detg_preprocess_node(array &$variables) {
 function detg_preprocess_views_view_unformatted(array &$variables) {
   /** @var \Drupal\views\ViewExecutable $view */
   $view = $variables['view'];
-  if ($view->id() !== 'docentes' || $view->current_display !== 'block_1') {
+
+  // Home: bloco de docentes só com quem tem cargo.
+  if ($view->id() === 'docentes' && $view->current_display === 'block_1') {
+    foreach ($variables['rows'] as $index => $row) {
+      $entity = $view->result[$index]->_entity ?? NULL;
+      if (!$entity instanceof \Drupal\node\NodeInterface) {
+        continue;
+      }
+      if (!$entity->hasField('field_cargo') || $entity->get('field_cargo')->isEmpty()) {
+        unset($variables['rows'][$index]);
+      }
+    }
+    $variables['rows'] = array_values($variables['rows']);
     return;
   }
 
-  foreach ($variables['rows'] as $index => $row) {
-    $entity = $view->result[$index]->_entity ?? NULL;
-    if (!$entity instanceof \Drupal\node\NodeInterface) {
-      continue;
-    }
-    if (!$entity->hasField('field_cargo') || $entity->get('field_cargo')->isEmpty()) {
-      unset($variables['rows'][$index]);
-    }
+  // Home: bloco de laboratórios mostra 4 itens no espaço disponível.
+  if ($view->id() === 'laboratorios' && $view->current_display === 'block_1') {
+    $variables['rows'] = array_slice(array_values($variables['rows']), 0, 4);
   }
-  $variables['rows'] = array_values($variables['rows']);
 }
 
 /**
@@ -477,13 +657,559 @@ function detg_initials(string $name): string {
  * Mapeia valor de categoria para classe CSS de cor.
  */
 function detg_categoria_class(string $value): string {
+  $key = mb_strtolower(trim($value));
+  $key = strtr($key, [
+    'á' => 'a', 'à' => 'a', 'ã' => 'a', 'â' => 'a',
+    'é' => 'e', 'ê' => 'e',
+    'í' => 'i',
+    'ó' => 'o', 'ô' => 'o', 'õ' => 'o',
+    'ú' => 'u',
+    'ç' => 'c',
+  ]);
+  $key = str_replace([' ', '-'], '_', $key);
   $map = [
     'concurso' => 'blue',
     'processo_seletivo' => 'blue',
     'monitoria' => 'blue',
+    'transportes' => 'blue',
     'seminario' => 'indigo',
     'palestra' => 'indigo',
+    'eventos' => 'green',
     'aula_de_campo' => 'green',
+    'geodesia' => 'orange',
+    'infraestrutura' => 'violet',
   ];
-  return $map[$value] ?? 'orange';
+  return $map[$key] ?? 'orange';
+}
+
+/**
+ * Itens do menu principal: menu Drupal + Institucional e Contato se faltarem.
+ *
+ * @return array<int, array{title: string, url: string, active: bool}>
+ */
+function detg_main_nav_items(): array {
+  $existing = detg_load_menu_links('main');
+
+  $required = [
+    [
+      'keys' => ['inicio', 'início', 'home'],
+      'title' => t('Início'),
+      'url' => \Drupal\Core\Url::fromRoute('<front>')->toString(),
+    ],
+    [
+      'keys' => ['institucional'],
+      'title' => t('Institucional'),
+      'url' => '/institucional',
+    ],
+    [
+      'keys' => ['docentes', 'corpo docente'],
+      'title' => t('Docentes'),
+      'url' => '/docentes',
+    ],
+    [
+      'keys' => ['disciplinas'],
+      'title' => t('Disciplinas'),
+      'url' => '/disciplinas',
+    ],
+    [
+      'keys' => ['laboratorios', 'laboratórios'],
+      'title' => t('Laboratórios'),
+      'url' => '/laboratorios',
+    ],
+    [
+      'keys' => ['contato', 'contact'],
+      'title' => t('Contato'),
+      'url' => '/contato',
+    ],
+  ];
+
+  $used_urls = [];
+  $items = [];
+
+  foreach ($required as $req) {
+    $match = detg_match_nav_item($existing, $req['keys'], $req['url']);
+    if ($match) {
+      $items[] = $match;
+      $used_urls[] = detg_normalize_nav_url($match['url']);
+    }
+    else {
+      $items[] = [
+        'title' => $req['title'],
+        'url' => $req['url'],
+        'active' => detg_nav_item_is_active($req['url']),
+      ];
+      $used_urls[] = detg_normalize_nav_url($req['url']);
+    }
+  }
+
+  $extras = [];
+  foreach ($existing as $item) {
+    if (!in_array(detg_normalize_nav_url($item['url']), $used_urls, TRUE)) {
+      $extras[] = $item;
+    }
+  }
+
+  if ($extras) {
+    $contato = array_pop($items);
+    $items = array_merge($items, $extras, [$contato]);
+  }
+
+  return $items;
+}
+
+/**
+ * @return array<int, array{title: string, url: string, active: bool}>
+ */
+function detg_load_menu_links(string $menu_name): array {
+  try {
+    $menu_tree = \Drupal::menuTree();
+    $parameters = $menu_tree->getCurrentRouteMenuTreeParameters($menu_name);
+    $parameters->setMaxDepth(1);
+    $parameters->onlyEnabledLinks();
+    $tree = $menu_tree->load($menu_name, $parameters);
+    $tree = $menu_tree->transform($tree, [
+      ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+      ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+    ]);
+
+    $items = [];
+    foreach ($tree as $element) {
+      if ($element->access && !$element->access->isAllowed()) {
+        continue;
+      }
+      $url = $element->link->getUrlObject()->toString();
+      $items[] = [
+        'title' => $element->link->getTitle(),
+        'url' => $url,
+        'active' => (bool) $element->inActiveTrail,
+      ];
+    }
+    return $items;
+  }
+  catch (\Throwable $e) {
+    return [];
+  }
+}
+
+/**
+ * @param array<int, array{title: string, url: string, active: bool}> $items
+ * @param array<int, string> $keys
+ */
+function detg_match_nav_item(array $items, array $keys, string $fallback_url): ?array {
+  $keys = array_map(static fn($k) => detg_normalize_nav_key($k), $keys);
+  $fallback = detg_normalize_nav_url($fallback_url);
+
+  foreach ($items as $item) {
+    $title = detg_normalize_nav_key((string) $item['title']);
+    $url = detg_normalize_nav_url((string) $item['url']);
+    if (in_array($title, $keys, TRUE) || $url === $fallback || str_ends_with($url, $fallback)) {
+      return $item;
+    }
+  }
+  return NULL;
+}
+
+function detg_normalize_nav_key(string $value): string {
+  $value = mb_strtolower(trim(strip_tags($value)));
+  return strtr($value, [
+    'á' => 'a', 'à' => 'a', 'ã' => 'a', 'â' => 'a',
+    'é' => 'e', 'ê' => 'e',
+    'í' => 'i',
+    'ó' => 'o', 'ô' => 'o', 'õ' => 'o',
+    'ú' => 'u',
+    'ç' => 'c',
+  ]);
+}
+
+function detg_normalize_nav_url(string $url): string {
+  $url = trim($url);
+  if ($url === '' || $url === '<front>') {
+    return '/';
+  }
+  $parts = parse_url($url);
+  $path = $parts['path'] ?? $url;
+  $path = '/' . ltrim($path, '/');
+  return rtrim($path, '/') ?: '/';
+}
+
+function detg_nav_item_is_active(string $url): bool {
+  $current = \Drupal::service('path.current')->getPath();
+  try {
+    $current = \Drupal::service('path_alias.manager')->getAliasByPath($current);
+  }
+  catch (\Throwable $e) {
+    // Sem aliases.
+  }
+  if (\Drupal::service('path.matcher')->isFrontPage()) {
+    return detg_normalize_nav_url($url) === '/';
+  }
+  return detg_normalize_nav_url($current) === detg_normalize_nav_url($url);
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Garante que a lista da agenda não fique presa após o TTL do feed.
+ */
+function detg_cron() {
+  \Drupal::cache()->delete('detg:agenda_events:v3');
+  \Drupal\Core\Cache\Cache::invalidateTags(['detg_agenda']);
+}
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Dynamic Page Cache respeita max-age; Internal Page Cache, não.
+ */
+function detg_page_attachments(array &$attachments) {
+  detg_attach_agenda_cache($attachments);
+}
+
+/**
+ * Limita o cache da página ao TTL da agenda.
+ */
+function detg_attach_agenda_cache(array &$variables): void {
+  $variables['#cache']['max-age'] = \Drupal\Core\Cache\Cache::mergeMaxAges(
+    $variables['#cache']['max-age'] ?? \Drupal\Core\Cache\Cache::PERMANENT,
+    300
+  );
+  $variables['#cache']['tags'][] = 'detg_agenda';
+}
+
+/**
+ * Próximos eventos da agenda (Google Calendar público do DETG).
+ *
+ * @return array<int, array{day: string, month: string, title: string, meta: string, timestamp: int}>
+ */
+function detg_agenda_events(int $limit = 5): array {
+  $cid = 'detg:agenda_events:v3';
+  $cache = \Drupal::cache()->get($cid);
+  if ($cache && is_array($cache->data)) {
+    return array_slice($cache->data, 0, $limit);
+  }
+
+  $events = [];
+  $ttl = 300;
+  try {
+    $response = \Drupal::httpClient()->get(
+      'https://calendar.google.com/calendar/ical/detg.ufba%40gmail.com/public/basic.ics',
+      [
+        'timeout' => 12,
+        'headers' => [
+          'User-Agent' => 'DETG-Drupal-Theme/1.0',
+          'Accept' => 'text/calendar, text/plain, */*',
+        ],
+      ]
+    );
+    $events = detg_parse_ics_events((string) $response->getBody(), 24);
+    $ttl = $events ? 600 : 300;
+  }
+  catch (\Throwable $e) {
+    $ttl = 120;
+    \Drupal::logger('detg')->warning('Falha ao ler a agenda do Google Calendar: @message', [
+      '@message' => $e->getMessage(),
+    ]);
+  }
+
+  \Drupal::cache()->set(
+    $cid,
+    $events,
+    \Drupal::time()->getRequestTime() + $ttl,
+    ['detg_agenda']
+  );
+  return array_slice($events, 0, $limit);
+}
+
+/**
+ * @return array<int, array{day: string, month: string, title: string, meta: string, timestamp: int}>
+ */
+function detg_parse_ics_events(string $ics, int $limit): array {
+  $ics = str_replace("\r\n", "\n", $ics);
+  $ics = preg_replace("/\n[ \t]/", '', $ics) ?? $ics;
+  if (!preg_match_all('/BEGIN:VEVENT(.*?)END:VEVENT/s', $ics, $matches)) {
+    return [];
+  }
+
+  $formatter = \Drupal::service('date.formatter');
+  $now = \Drupal::time()->getRequestTime();
+  $today_start = strtotime(date('Y-m-d 00:00:00', $now)) ?: $now;
+  $events = [];
+
+  foreach ($matches[1] as $block) {
+    if (strtoupper(detg_ics_field($block, 'STATUS')) === 'CANCELLED') {
+      continue;
+    }
+
+    $raw_start = detg_ics_field($block, 'DTSTART');
+    $parsed = detg_ics_datetime($raw_start);
+    if (!$parsed || $parsed['timestamp'] < $today_start) {
+      continue;
+    }
+
+    $title = detg_ics_unescape(detg_ics_field($block, 'SUMMARY'));
+    if ($title === '') {
+      continue;
+    }
+
+    $location = detg_ics_unescape(detg_ics_field($block, 'LOCATION'));
+    $meta_parts = [];
+    if ($location !== '') {
+      $meta_parts[] = $location;
+    }
+    if ($parsed['has_time']) {
+      $meta_parts[] = $formatter->format($parsed['timestamp'], 'custom', 'G\hi');
+    }
+
+    $events[] = [
+      'day' => $formatter->format($parsed['timestamp'], 'custom', 'd'),
+      'month' => detg_month_short($parsed['timestamp']),
+      'title' => $title,
+      'meta' => implode(' • ', $meta_parts),
+      'timestamp' => $parsed['timestamp'],
+    ];
+  }
+
+  usort($events, static fn($a, $b) => $a['timestamp'] <=> $b['timestamp']);
+  return array_slice($events, 0, $limit);
+}
+
+function detg_ics_field(string $block, string $name): string {
+  if (preg_match('/^' . preg_quote($name, '/') . '(?:;[^:]*)?:(.*)$/mi', $block, $m)) {
+    return trim($m[1]);
+  }
+  return '';
+}
+
+function detg_ics_unescape(string $value): string {
+  $value = str_replace(['\\\\', '\\n', '\\N', '\\,', '\\;'], ['\\', ' ', ' ', ',', ';'], $value);
+  return trim($value);
+}
+
+/**
+ * @return array{timestamp: int, has_time: bool}|null
+ */
+function detg_ics_datetime(string $raw): ?array {
+  $raw = trim($raw);
+  if ($raw === '') {
+    return NULL;
+  }
+
+  if (preg_match('/^(\d{8})$/', $raw, $m)) {
+    $ts = strtotime(substr($m[1], 0, 4) . '-' . substr($m[1], 4, 2) . '-' . substr($m[1], 6, 2) . ' 00:00:00');
+    return $ts ? ['timestamp' => $ts, 'has_time' => FALSE] : NULL;
+  }
+
+  if (preg_match('/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?$/', $raw, $m)) {
+    $iso = sprintf('%s-%s-%sT%s:%s:%s', $m[1], $m[2], $m[3], $m[4], $m[5], $m[6]);
+    if (!empty($m[7])) {
+      $dt = new \DateTimeImmutable($iso, new \DateTimeZone('UTC'));
+    }
+    else {
+      $dt = new \DateTimeImmutable($iso, new \DateTimeZone('America/Bahia'));
+    }
+    $dt = $dt->setTimezone(new \DateTimeZone('America/Bahia'));
+    return ['timestamp' => $dt->getTimestamp(), 'has_time' => TRUE];
+  }
+
+  $ts = strtotime($raw);
+  return $ts ? ['timestamp' => $ts, 'has_time' => TRUE] : NULL;
+}
+
+function detg_month_short(int $timestamp): string {
+  $map = [
+    1 => 'JAN', 2 => 'FEV', 3 => 'MAR', 4 => 'ABR',
+    5 => 'MAI', 6 => 'JUN', 7 => 'JUL', 8 => 'AGO',
+    9 => 'SET', 10 => 'OUT', 11 => 'NOV', 12 => 'DEZ',
+  ];
+  $month = (int) \Drupal::service('date.formatter')->format($timestamp, 'custom', 'n');
+  return $map[$month] ?? mb_strtoupper(\Drupal::service('date.formatter')->format($timestamp, 'custom', 'M'));
+}
+
+/**
+ * Texto simples de um campo (sem HTML).
+ */
+function detg_field_plain(\Drupal\node\NodeInterface $node, string $field): string {
+  if (!$node->hasField($field) || $node->get($field)->isEmpty()) {
+    return '';
+  }
+  $raw = (string) ($node->get($field)->value ?? '');
+  return trim(preg_replace('/\s+/u', ' ', strip_tags($raw)) ?? '');
+}
+
+/**
+ * HTML processado de campo texto formatado.
+ *
+ * @return \Drupal\Component\Render\MarkupInterface|string
+ */
+function detg_field_processed(\Drupal\node\NodeInterface $node, string $field) {
+  if (!$node->hasField($field) || $node->get($field)->isEmpty()) {
+    return '';
+  }
+  $item = $node->get($field)->first();
+  if (!$item) {
+    return '';
+  }
+  if (isset($item->processed)) {
+    return $item->processed;
+  }
+  return trim((string) ($item->value ?? ''));
+}
+
+/**
+ * Valor cru preservando quebras de linha.
+ */
+function detg_field_multiline(\Drupal\node\NodeInterface $node, string $field): string {
+  if (!$node->hasField($field) || $node->get($field)->isEmpty()) {
+    return '';
+  }
+  return trim(str_replace(["\r\n", "\r"], "\n", (string) ($node->get($field)->value ?? '')));
+}
+
+function detg_teaser_text(string $html, int $max = 180): string {
+  $plain = trim(preg_replace('/\s+/u', ' ', strip_tags($html)) ?? '');
+  if ($plain === '' || mb_strlen($plain) <= $max) {
+    return $plain;
+  }
+  return rtrim(mb_substr($plain, 0, $max)) . '…';
+}
+
+/**
+ * Dados da página Institucional a partir dos campos do nó.
+ */
+function detg_fill_institucional(array &$variables): void {
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  $historia = detg_field_processed($node, 'field_historia');
+  $missao = detg_field_multiline($node, 'field_missao');
+  $estrutura_intro = detg_field_multiline($node, 'field_estrutura_intro');
+
+  $resumo_historia = detg_field_multiline($node, 'field_resumo_historia');
+  if ($resumo_historia === '') {
+    $resumo_historia = detg_teaser_text((string) $historia, 200);
+  }
+  $resumo_missao = detg_field_multiline($node, 'field_resumo_missao');
+  if ($resumo_missao === '') {
+    $resumo_missao = $missao;
+  }
+  $resumo_estrutura = $estrutura_intro !== '' ? detg_teaser_text($estrutura_intro, 200) : '';
+
+  $nomes = [];
+  $descs = [];
+  if ($node->hasField('field_estrutura_nome') && !$node->get('field_estrutura_nome')->isEmpty()) {
+    foreach ($node->get('field_estrutura_nome') as $item) {
+      $nomes[] = trim((string) ($item->value ?? ''));
+    }
+  }
+  if ($node->hasField('field_estrutura_desc') && !$node->get('field_estrutura_desc')->isEmpty()) {
+    foreach ($node->get('field_estrutura_desc') as $item) {
+      $descs[] = trim((string) ($item->value ?? ''));
+    }
+  }
+  $estrutura_itens = [];
+  $count = max(count($nomes), count($descs));
+  for ($i = 0; $i < $count; $i++) {
+    $name = $nomes[$i] ?? '';
+    $desc = $descs[$i] ?? '';
+    if ($name === '' && $desc === '') {
+      continue;
+    }
+    $estrutura_itens[] = ['name' => $name, 'desc' => $desc];
+  }
+
+  $stats = [
+    ['value' => detg_field_plain($node, 'field_numero_anos'), 'label' => t('Anos de história'), 'class' => 'blue'],
+    ['value' => detg_field_plain($node, 'field_numero_labs'), 'label' => t('Laboratórios'), 'class' => 'orange'],
+    ['value' => detg_field_plain($node, 'field_numero_docentes'), 'label' => t('Docentes'), 'class' => 'emerald'],
+    ['value' => detg_field_plain($node, 'field_numero_projetos'), 'label' => t('Projetos e parcerias'), 'class' => 'violet'],
+  ];
+  $stats = array_values(array_filter($stats, static fn(array $row): bool => $row['value'] !== ''));
+
+  $variables['detg'] += [
+    'lead' => detg_field_multiline($node, 'field_info_lead'),
+    'banner_title' => detg_field_plain($node, 'field_banner_titulo'),
+    'banner_text' => detg_field_plain($node, 'field_banner_texto'),
+    'resumo_historia' => $resumo_historia,
+    'historia' => $historia,
+    'resumo_missao' => $resumo_missao,
+    'missao' => $missao,
+    'visao' => detg_field_multiline($node, 'field_visao'),
+    'valores' => detg_field_multiline($node, 'field_valores'),
+    'estrutura_intro' => $estrutura_intro,
+    'resumo_estrutura' => $resumo_estrutura,
+    'estrutura_itens' => $estrutura_itens,
+    'stats' => $stats,
+  ];
+}
+
+/**
+ * Dados da página Contato a partir dos campos do nó.
+ */
+function detg_fill_contato(array &$variables): void {
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  $email = '';
+  if ($node->hasField('field_e_mail') && !$node->get('field_e_mail')->isEmpty()) {
+    $email = trim((string) $node->get('field_e_mail')->value);
+  }
+  $phone = detg_field_plain($node, 'field_contato_telefone');
+  $tel = preg_replace('/[^\d+]/', '', $phone) ?? '';
+
+  $variables['detg'] += [
+    'lead' => detg_field_multiline($node, 'field_info_lead'),
+    'endereco' => detg_field_multiline($node, 'field_endereco'),
+    'telefone' => $phone,
+    'tel_href' => $tel !== '' ? 'tel:' . $tel : '',
+    'email' => $email,
+    'horario' => detg_field_multiline($node, 'field_horario'),
+  ];
+  $variables['detg_contact_form'] = detg_contact_form_build();
+  $variables['#cache']['contexts'][] = 'user.permissions';
+}
+
+/**
+ * Formulário de contato do Drupal (contact.form.detg).
+ */
+function detg_contact_form_build(): array {
+  try {
+    $form_id = 'detg';
+    $contact_form = \Drupal\contact\Entity\ContactForm::load($form_id);
+    if (!$contact_form) {
+      return [];
+    }
+    $message = \Drupal::entityTypeManager()
+      ->getStorage('contact_message')
+      ->create(['contact_form' => $form_id]);
+    if (!$message->access('create')) {
+      return [];
+    }
+    return \Drupal::service('entity.form_builder')->getForm($message);
+  }
+  catch (\Throwable $e) {
+    \Drupal::logger('detg')->warning('Formulário de contato: @message', [
+      '@message' => $e->getMessage(),
+    ]);
+    return [];
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for contact_message_detg_form.
+ */
+function detg_form_contact_message_detg_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form['#attributes']['class'][] = 'detg-contact-form';
+  if (isset($form['copy'])) {
+    $form['copy']['#access'] = FALSE;
+  }
+  if (isset($form['preview'])) {
+    $form['preview']['#access'] = FALSE;
+  }
+  if (isset($form['actions']['preview'])) {
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+  if (isset($form['actions']['submit'])) {
+    $form['actions']['submit']['#value'] = t('Enviar mensagem');
+    $form['actions']['submit']['#attributes']['class'][] = 'btn';
+    $form['actions']['submit']['#attributes']['class'][] = 'btn--primary';
+    $form['actions']['submit']['#attributes']['class'][] = 'contato-form__submit';
+  }
 }

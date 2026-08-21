@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Breadcrumb DETG — Início / Página atual.
+ */
+#}
+{% if breadcrumb %}
+  <ol>
+    {% for item in breadcrumb %}
+      <li>
+        {% if item.url %}
+          <a href="{{ item.url }}">{{ item.text }}</a>
+        {% else %}
+          <span>{{ item.text }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+{% endif %}
